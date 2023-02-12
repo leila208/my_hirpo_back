@@ -26,9 +26,11 @@ class LoginSerializer(serializers.Serializer):
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(style={"input_type":"password"})
+    matchPassword = serializers.CharField(style={"input_type":"password"},write_only=True)
     class Meta:
         model = User
-        fields = ("email", "name", "surname", "password","company_name", "slug")
+        fields = ("email", "name", "surname","password","company_name", "id","matchPassword")
         extra_kwargs = {
             "password": {
                 "write_only": True
@@ -42,14 +44,16 @@ class RegistrationSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         email = attrs.get("email")
         password = attrs.get("password")
+        matchPassword = attrs.pop("matchPassword")
 
         email_qs = User.objects.filter(email=email).exists()
-
+        if password != matchPassword:
+            raise serializers.ValidationError("Password tekrarinda xeta bas verib")
         if email_qs:
-            raise serializers.ValidationError({"Bu email ile artiq qeydiyyatdan kecilib"})
-
-        if len(password) < 6:
-            raise serializers.ValidationError({"Sifre en azi 6 simvoldan ibaret olmalidir"})
+            raise serializers.ValidationError("Bu email ile artiq qeydiyyatdan kecilib")
+        if password:
+            if len(password) < 6:
+                raise serializers.ValidationError("Sifre en azi 6 simvoldan ibaret olmalidir")
 
         return attrs
 
@@ -76,14 +80,21 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
 
 class VerifySerializer(serializers.ModelSerializer):
+    # verificationCode=serializers.CharField()
+    # activation_code=serializers.CharField()
+ 
     class Meta:
         model = User
-        fields = ("activation_code", )
+        fields = ("activation_code",)
+        extra_kwargs = {
+            "activation_code": {
+                "write_only": True
+            }
+        }
 
     def validate(self, attrs):
         activation_code = self.instance.activation_code
-        code = attrs.get("activation_code")
-
+        code=attrs.get("activation_code")
         if int(code) != int(activation_code):
             raise serializers.ValidationError({"Duzgun kod daxil edilmeyib"})
         return attrs

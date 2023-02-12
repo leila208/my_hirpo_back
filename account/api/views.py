@@ -26,7 +26,7 @@ class LoginView(generics.CreateAPIView):
             "refresh": str(refresh),
             "access": str(refresh.access_token)
         }
-
+       
         return Response({"email": email, "tokens": tokens}, status=201)
 
 
@@ -42,22 +42,22 @@ class RegistrationView(generics.CreateAPIView):
         user = serializer.save()
 
         # login(request, user)
-        return Response(serializer.data, status=201)
+        return Response({"Status": "success", "data": serializer.data}, status=200)
 
 
-class VerifyView(generics.UpdateAPIView):
+class VerifyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = VerifySerializer
-    lookup_field = "slug"
+    lookup_field = "id"
 
     def put(self, request, *args, **kwargs):
-        obj = self.get_object()
-        serializer = self.serializer_class(data=request.data, instance=obj)
+        obj=self.get_object()
+        serializer = self.serializer_class(data=request.data,instance=obj)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-
+        # print(request.dat)
         login(request, user)
-        return Response({}, status=201)
+        return Response({"Status": "success"}, status=201)
     
     
 class SendResetCodeView(generics.CreateAPIView):
