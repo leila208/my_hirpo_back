@@ -39,7 +39,7 @@ class RegistrationView(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = serializer.save()
+        serializer.save()
 
         # login(request, user)
         return Response({"Status": "success", "data": serializer.data}, status=200)
@@ -67,23 +67,25 @@ class SendResetCodeView(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
+        id = User.objects.filter(email=serializer.data['email'])[0].id
+        print(id)
 
 
-
-        return Response({}, status=201)
+        return Response({"id":id,"data": serializer.data,"Status":"success"},status=201)
 
     
     
 class ChangePasswordVerifyView(generics.UpdateAPIView):
     queryset = User.objects.all()
     serializer_class = ChangePasswordSerializer
-    lookup_field = "slug"
+    lookup_field = "id"
 
     def put(self, request, *args, **kwargs):
         obj = self.get_object()
-        serializer = self.serializer_class(data=request.data, instance=obj)
+        serializer = self.serializer_class(data=request.data,instance=obj)
+        
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
 
         login(request, user)
-        return Response({}, status=201)
+        return Response({'Status':'Success'}, status=201)

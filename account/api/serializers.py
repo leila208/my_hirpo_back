@@ -65,7 +65,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         user.set_password(password)
         user.activation_code = create_activation_code(size=6, model_=User)
         user.is_active = False
-        user.save()
+        user.save()   
 
         # send mail
         send_mail(
@@ -97,6 +97,7 @@ class VerifySerializer(serializers.ModelSerializer):
         code=attrs.get("activation_code")
         if int(code) != int(activation_code):
             raise serializers.ValidationError({"Duzgun kod daxil edilmeyib"})
+        
         return attrs
 
     def update(self, instance, validated_data):
@@ -111,48 +112,54 @@ class SendResetCodeSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
     def validate(self, attrs):
+        email = attrs.get("email")
         user = User(
             **attrs
         )
-        email = attrs.get("email")
+        email_qs = User.objects.filter(email=email).exists()
 
         user.password_reset_code = create_password_reset_code(size=10, model_=User)
         
+        if email_qs:
+            if email:
+
+                send_mail(
+                'Reset Password',
+                f'Passwordu yenilemek ucun aktivlesdirme kodu:{user.password_reset_code}',
+                settings.EMAIL_HOST_USER,
+                [user.email],
+                fail_silently=False,
+            )
         
-        if email:
-
-            send_mail(
-            'Reset Password',
-            f'Passwordu yenilemek ucun aktivlesdirme kodu:{user.password_reset_code}',
-            settings.EMAIL_HOST_USER,
-            [user.email],
-            fail_silently=False,
-        )
+        
         return attrs
-
+    
+   
 
 class ChangePasswordSerializer(serializers.ModelSerializer):
-    password = serializers.CharField()
+    password = serializers.CharField(style={"input_type":"password"})
+
     password_reset_code = serializers.CharField()
     class Meta:
         model = User
-        fields = ("password_reset_code", 'password')
-
+        fields = ("password_reset_code", "password")
     def validate(self, attrs):
         user = User(
             **attrs
         )
         
-        password_reset_code = user.password_reset_code
-        code = attrs.get("password_reset_code")
-        password = attrs.get('password')
+        code = user.password_reset_code
+        password_reset_code = attrs.get("password_reset_code")
+
         if int(code) != int(password_reset_code):
             raise serializers.ValidationError({"Duzgun kod daxil edilmeyib"})
+       
         return attrs
 
-    def update(self, instance, validated_data):
+    def update(self,instance,validated_data):
         password = validated_data.pop('password')
         instance.password_reset_code = None
         instance.set_password(password)
         instance.save()
         return instance
+        
