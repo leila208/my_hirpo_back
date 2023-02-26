@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'wizard',
+    'norm',
     
         #myapps
     'account',
@@ -47,7 +49,6 @@ INSTALLED_APPS = [
     "rest_framework",
     'django_filters',
     "corsheaders",
-
 ]
 
 REST_FRAMEWORK = {
