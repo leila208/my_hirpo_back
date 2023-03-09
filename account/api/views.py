@@ -25,9 +25,10 @@ class LoginView(generics.CreateAPIView):
         tokens = {
             "refresh": str(refresh),
             "access": str(refresh.access_token)
+            
         }
        
-        return Response({"email": email, "tokens": tokens}, status=201)
+        return Response({"email": email, "tokens": tokens,"userId":user.id}, status=201)
 
 
 

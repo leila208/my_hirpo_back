@@ -43,12 +43,15 @@ class ProjectDepartment(models.Model):
     class Meta:
         verbose_name = 'Company departamenti'
         verbose_name_plural = 'Company departamentleri'
-        
+    
+    def get_compatencies(self):
+        return SkillNorm.objects.filter(department=self)    
+
 
 class DepartmentPosition(models.Model):
     name = models.CharField(max_length=20,verbose_name='Position adi')    
     description = models.TextField(verbose_name='Position haqqinda',null=True,blank=True)
-    department = models.ForeignKey(ProjectDepartment,on_delete=models.CASCADE,null=True,blank=True)
+    department = models.ForeignKey(ProjectDepartment,on_delete=models.CASCADE,null=True,blank=True,related_name='departmentpositions')
     
     def __str__(self):
         return self.name
@@ -56,6 +59,9 @@ class DepartmentPosition(models.Model):
     class Meta:
         verbose_name = 'Company position'
         verbose_name_plural = 'Company positions'
+    
+    
+        
 
 
         
@@ -80,6 +86,7 @@ class User(models.Model):
     position = models.ForeignKey(DepartmentPosition,related_name='user',on_delete=models.CASCADE,verbose_name='User position')
     department = models.ForeignKey(ProjectDepartment,related_name='user',on_delete=models.CASCADE,verbose_name='User departmenti')
     
+    
     def __str__(self):
         return f'{self.name}-{self.surname}'
     
@@ -92,6 +99,7 @@ class User(models.Model):
         hard_goal_skill = {}
         for x in Skill.objects.all():
             if UserSkill.objects.filter(skill=x):
+
                 goal = UserSkill.objects.filter(skill=x).values('price')[0]['price']/SkillNorm.objects.filter(department=self.department,skill=x,position=self.position).values('norm')[0]['norm']
                 if x.skilltype == 'Hard':
                     hard_goal_skill[x.name] = int(goal*100)
@@ -105,6 +113,7 @@ class User(models.Model):
         soft_goal_skill = {}
         for x in Skill.objects.all():
             if UserSkill.objects.filter(skill=x):
+
                 goal = UserSkill.objects.filter(skill=x).values('price')[0]['price']/SkillNorm.objects.filter(department=self.department,skill=x,position=self.position).values('norm')[0]['norm']
                 if x.skilltype == 'Soft':
                     soft_goal_skill[x.name] = int(goal*100)

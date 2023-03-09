@@ -1,6 +1,14 @@
 from rest_framework import serializers
 from wizard.models import *
+from django.http import JsonResponse
+from norm.models import *
 
+
+class SkillSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Skill
+        fields = '__all__'
 
 class ProjectSerializer(serializers.ModelSerializer):
 
@@ -8,24 +16,54 @@ class ProjectSerializer(serializers.ModelSerializer):
         model = Project
         fields = '__all__'
         
-class ProjectDepartmentSerializer(serializers.ModelSerializer):
 
-    class Meta:
-        model = ProjectDepartment
-        fields = '__all__'
     
     
         
 class DepartmentPositionSerializer(serializers.ModelSerializer):
-
+    
     class Meta:
         model = DepartmentPosition
         fields = '__all__'
+        
+class ProjectDepartmentForCompSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProjectDepartment
+        fields = '__all__'
+        
+class ProjectDepartmentUpdateSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model=ProjectDepartment
+        fields = ('name','employee_number')
+
+class ProjectDepartmentSerializer(serializers.ModelSerializer):
+    departmentpositions = DepartmentPositionSerializer(many=True)
+    compatencies = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = ProjectDepartment
+        fields = ('id', 'project', 'name', 'description', 'employee_number', 'departmentpositions','compatencies')
+        
+    def get_compatencies(self,obj):
+        query = obj.get_compatencies()
+        data = SkillNormSerializer(query,many=True)
+        return data.data
+
+
 
 class SkillNormSerializer(serializers.ModelSerializer):
+    department = ProjectDepartmentForCompSerializer()
+    skill = SkillSerializer()
+    position = DepartmentPositionSerializer()
+    class Meta:
+        model = SkillNorm
+        fields = '__all__'
+
+class SkillNormUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Department
+        model = SkillNorm
         fields = '__all__'
 
 
@@ -51,3 +89,4 @@ class UserSerializer(serializers.ModelSerializer):
     def get_goal(self,obj):
         return obj.get_goal()
     
+
