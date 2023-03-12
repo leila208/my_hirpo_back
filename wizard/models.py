@@ -36,6 +36,7 @@ class ProjectDepartment(models.Model):
     name = models.CharField(max_length=255,verbose_name='Department adi')
     description = models.TextField(verbose_name='Department haqqinda',null=True,blank=True)
     employee_number = models.PositiveIntegerField(null=True,blank=True)
+
     
     def __str__(self):
         return self.name
