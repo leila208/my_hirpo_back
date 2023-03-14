@@ -48,6 +48,7 @@ class CreateProjectView(APIView):
                     position = DepartmentPositionSerializer(data=x)  
                     if position.is_valid(raise_exception=True):
                         position.save(department=department)
+                #Department.objects.bulk_create()
         return Response({"message":"success","project":project_serializer.data['id']},status=201)
    
     

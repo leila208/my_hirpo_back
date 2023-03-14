@@ -40,20 +40,21 @@ class ProjectDepartmentUpdateSerializer(serializers.ModelSerializer):
 class ProjectDepartmentSerializer(serializers.ModelSerializer):
     departmentpositions = DepartmentPositionSerializer(many=True)
     compatencies = serializers.SerializerMethodField()
+    allSkills = serializers.SerializerMethodField()
     
     class Meta:
         model = ProjectDepartment
-        fields = ('id', 'project', 'name', 'description', 'employee_number', 'departmentpositions','compatencies')
+        fields = ('id', 'project', 'name', 'description', 'employee_number', 'departmentpositions','compatencies','allSkills')
         
     def get_compatencies(self,obj):
-        query = obj.get_compatencies()
-        data = SkillNormSerializer(query,many=True)
-        return data.data
+        return obj.get_compatencies()
+    
+    def get_allSkills(self,obj):
+        return obj.get_allSkills()
 
 
 
 class SkillNormSerializer(serializers.ModelSerializer):
-    department = ProjectDepartmentForCompSerializer()
     skill = SkillSerializer()
     position = DepartmentPositionSerializer()
     class Meta:

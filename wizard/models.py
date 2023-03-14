@@ -43,9 +43,25 @@ class ProjectDepartment(models.Model):
     class Meta:
         verbose_name = 'Company departamenti'
         verbose_name_plural = 'Company departamentleri'
+        
+    def get_allSkills(self):
+        Skills = []
+        for x in Skill.objects.all():
+            Skills.append({"id":x.id,"name":x.name})
+        return Skills
+        
+            
     
     def get_compatencies(self):
-        return SkillNorm.objects.filter(department=self)    
+        comptencies = []
+        position = {}
+        position = DepartmentPosition.objects.filter(department=self)
+        skills = []
+        for y in position:
+            for c in SkillNorm.objects.filter(position=y):
+                skills.append({'norm':c.norm,"id":c.id,"department":{"name":c.position.department.name,"id":c.position.department.id},'skill':{"name":c.skill.name,"id":c.skill.id},'position':{'name':c.position.name,'id':c.position.id}})
+        comptencies.append(skills)
+        return comptencies[0]
 
 
 class DepartmentPosition(models.Model):
@@ -54,7 +70,7 @@ class DepartmentPosition(models.Model):
     department = models.ForeignKey(ProjectDepartment,on_delete=models.CASCADE,null=True,blank=True,related_name='departmentpositions')
     
     def __str__(self):
-        return self.name
+        return f"{self.name} - {self.department.name}"
     
     class Meta:
         verbose_name = 'Company position'
@@ -66,13 +82,12 @@ class DepartmentPosition(models.Model):
 
         
 class SkillNorm(models.Model):
-    department = models.ForeignKey(ProjectDepartment,on_delete=models.CASCADE)
     position = models.ForeignKey(DepartmentPosition,on_delete=models.CASCADE)
     skill = models.ForeignKey(Skill,on_delete=models.CASCADE)
     norm = models.PositiveIntegerField()
     
     def __str__(self):
-        return f'{self.department.name}-{self.skill.name}'
+        return f'{self.position.name}-{self.skill.name}'
     
     class Meta:
         verbose_name = 'Sirket normasi'
@@ -100,7 +115,7 @@ class User(models.Model):
         for x in Skill.objects.all():
             if UserSkill.objects.filter(skill=x):
 
-                goal = UserSkill.objects.filter(skill=x).values('price')[0]['price']/SkillNorm.objects.filter(department=self.department,skill=x,position=self.position).values('norm')[0]['norm']
+                goal = UserSkill.objects.filter(skill=x).values('price')[0]['price']/SkillNorm.objects.filter(skill=x,position=self.position).values('norm')[0]['norm']
                 if x.skilltype == 'Hard':
                     hard_goal_skill[x.name] = int(goal*100)
         if len(hard_goal_skill)>0:        
@@ -114,7 +129,7 @@ class User(models.Model):
         for x in Skill.objects.all():
             if UserSkill.objects.filter(skill=x):
 
-                goal = UserSkill.objects.filter(skill=x).values('price')[0]['price']/SkillNorm.objects.filter(department=self.department,skill=x,position=self.position).values('norm')[0]['norm']
+                goal = UserSkill.objects.filter(skill=x).values('price')[0]['price']/SkillNorm.objects.filter(skill=x,position=self.position).values('norm')[0]['norm']
                 if x.skilltype == 'Soft':
                     soft_goal_skill[x.name] = int(goal*100)
         if len(soft_goal_skill)>0:        
