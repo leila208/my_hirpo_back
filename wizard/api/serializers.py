@@ -1,13 +1,17 @@
 from rest_framework import serializers
 from wizard.models import *
 from django.http import JsonResponse
-from norm.models import *
 
+class HirponormsSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Hirponorms
+        fields = '__all__'
 
 class SkillSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Skill
+        model = MainSkill
         fields = '__all__'
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -37,6 +41,7 @@ class ProjectDepartmentUpdateSerializer(serializers.ModelSerializer):
         model=ProjectDepartment
         fields = ('name','employee_number')
 
+#for comptencies
 class ProjectDepartmentSerializer(serializers.ModelSerializer):
     departmentpositions = DepartmentPositionSerializer(many=True)
     compatencies = serializers.SerializerMethodField()
@@ -52,6 +57,11 @@ class ProjectDepartmentSerializer(serializers.ModelSerializer):
     def get_allSkills(self,obj):
         return obj.get_allSkills()
 
+class SimpleProjectDepartmentSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = ProjectDepartment
+        fields = ('id', 'project', 'name', 'description', 'employee_number')
 
 
 class SkillNormSerializer(serializers.ModelSerializer):
@@ -61,17 +71,16 @@ class SkillNormSerializer(serializers.ModelSerializer):
         model = SkillNorm
         fields = '__all__'
 
-class SkillNormUpdateSerializer(serializers.ModelSerializer):
 
+class SkillNormUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = SkillNorm
         fields = '__all__'
-
-
+        
 
 class UserSerializer(serializers.ModelSerializer):
     project = ProjectSerializer()
-    department = ProjectDepartmentSerializer()
+    department = SimpleProjectDepartmentSerializer()
     position = DepartmentPositionSerializer()
     hard_goal = serializers.SerializerMethodField()
     soft_goal = serializers.SerializerMethodField()
@@ -91,3 +100,5 @@ class UserSerializer(serializers.ModelSerializer):
         return obj.get_goal()
     
 
+class ExcelSerializer(serializers.Serializer):
+    excel_file = serializers.FileField()

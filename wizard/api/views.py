@@ -2,6 +2,9 @@ from rest_framework import generics
 from rest_framework.views import APIView
 from wizard.api.serializers import *
 from rest_framework.response import Response
+import os
+import pandas as pd
+import openpyxl
 from wizard.models import *
 
 
@@ -11,17 +14,16 @@ class UserListView(generics.ListAPIView):
 
 class CreateProjectView(APIView):     
     def post(self,request,format=None):
-        print(request.data)
         project_serializer = ProjectSerializer(data=request.data)
-        object_data = [request.data.get('inputValues')]
+        object_data = request.data.get('inputValues')
+        #datani listin icindeydi, object_data[0] seklinde yazilmisdi
         if project_serializer.is_valid(raise_exception=True):
             project = project_serializer.save()
-            print(object_data)
-            for item in list(object_data[0].keys()):
+
+            for item in list(object_data.keys()):
                 name=str(item)
-                value=str(object_data[0][item])
-                print(value,'s')
-                
+                value=str(object_data[item])
+
                 last_data={"name":name,"employee_number":value}
 
                 department_serializer = ProjectDepartmentUpdateSerializer(data=last_data)
@@ -36,45 +38,47 @@ class CreateProjectView(APIView):
                 if employee_number == 1:
                     data=[{"name":"Senior"}]
                 elif employee_number>1 and employee_number<4:
-                    data = [{'name':'Senior'},{'name':'Senior Specialist'}]
+                    data = [{'name':'Specialist'},{'name':'Senior specialist'}]
                 elif employee_number>3 and employee_number<6:
-                    data = [{'name':'Manager'},{'name':'Senior Specialist'},{'name':'Junior'}]
+                    data = [{'name':'Junior-Assistant'},{'name':'Senior specialist'},{'name':'Manager'}]
                 elif employee_number>5 and employee_number<11:
-                    data = [{'name':'Manager'},{'name':'Senior Specialist'},{'name':'Junior'},{'name':'Seniior'}]   
+                    data = [{'name':'Junior-assistant'},{'name':'Specialist'},{'name':'Senior specialist'},{'name':'Manager'}]   
                 elif employee_number>10:
-                    data = [{'name':'Top manager'},{'name':'Manager'},{'name':'Senior Specialist'},{'name':'Junior'},{'name':'Seniior'}]  
-
+                    data = [{'name':'Junior-assistant'},{'name':'Specialist'},{'name':'Senior Specialist'},{'name':'Manager'},{'name':'Top manager'}]  
+           
                 for x in data:
                     position = DepartmentPositionSerializer(data=x)  
                     if position.is_valid(raise_exception=True):
                         position.save(department=department)
                 #Department.objects.bulk_create()
+                #bulk create daha uzun imis
         return Response({"message":"success","project":project_serializer.data['id']},status=201)
    
     
            
 """{"companyleader": "111", "project_name": "ss", "industry": "IT", "employee_number": "22", "inputValues": {"Hr": "22"}}"""
 
-    
+
 class PositionUpdateView(APIView):
     def put(self, request, *args, **kwargs):
         position_serializer = DepartmentPositionSerializer
-        print(request.data)
+        
         data = request.data.get('selecteds')
         if data:
             for position_data in data:
                 serializer = position_serializer(data=position_data)
                 serializer.is_valid(raise_exception=True)
                 serializer.save()
-        print(data,len(data),'deyisenler')
+    
         data2 = request.data.get('objects2')
-        print(data2,'silinenler')
+   
         if data2:
             for position_data in data2:
                 position = DepartmentPosition.objects.get(id=position_data.get('id'))
                 if position:            
                     position.delete()
         return Response(serializer.data)
+    
     
 class CompatencyUpdateView(APIView):
     def put(self, request, *args, **kwargs):
@@ -90,12 +94,12 @@ class CompatencyUpdateView(APIView):
         return Response({"message":"success"})
     
 """{  
-                "id": 3,
-                "norm": 3,
-                "department": 1,
-                "position": 73,
-                "skill": 1
-            }"""        
+    "id": 3,
+    "norm": 3,
+    "department": 1,
+    "position": 73,
+    "skill": 1
+    }"""        
         
 
 class SkillNormListView(generics.ListAPIView):
@@ -119,11 +123,48 @@ class DepartmentPositionListView(generics.ListAPIView):
         if data:
             project=Project.objects.get(id=data)
             return queryset.filter(project=project)
-       
-
+                        
+                
 class Go_back(APIView):
    def delete(self, request):
         data=request.data
         project = Project.objects.get(id=data.get("project"))
         project.delete()
         return Response({"message":"success"})
+    
+
+class ExcelUploadView(APIView):
+    def get(self, request):
+        df = pd.read_excel('media/Hirpolist.xlsx',usecols=['Department (eng)','Name of competency','Level (1-5)','Type (soft ot hard skills)','Position level'])
+        df.fillna('null', inplace=True)
+        df.rename(columns={'Level (1-5)': 'norm'}, inplace=True)
+        df.rename(columns={'Department (eng)': 'department'}, inplace=True)
+        df.rename(columns={'Name of competency': 'skill'}, inplace=True)
+        df.rename(columns={'Type (soft ot hard skills)': 'skilltype'}, inplace=True)
+        df.rename(columns={'Position level': 'position'}, inplace=True)
+       
+        data = df.to_dict(orient='records')
+        return Response(data)
+
+class OneTimeView(APIView):
+    def post(self,request):
+        df = pd.read_excel('media/Hirpolist.xlsx',usecols=['Department (eng)','Name of competency','Level (1-5)','Type (soft ot hard skills)','Position level'])
+        df.fillna('null', inplace=True)
+        df.rename(columns={'Level (1-5)': 'norm'}, inplace=True)
+        df.rename(columns={'Department (eng)': 'department'}, inplace=True)
+        df.rename(columns={'Name of competency': 'skill'}, inplace=True)
+        df.rename(columns={'Type (soft ot hard skills)': 'skilltype'}, inplace=True)
+        df.rename(columns={'Position level': 'position'}, inplace=True)
+
+        data = df.to_dict(orient='records')
+        print(data)
+        for x in data:     
+            serializer =  HirponormsSerializer(data=x)
+            serializer.is_valid(raise_exception=True)
+            print(serializer,x)
+            serializer.save()
+        return Response({'message':'success'})
+       
+
+       
+        

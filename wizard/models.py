@@ -1,7 +1,7 @@
 from django.db import models
 from account.utils import create_slug_shortcode
 from django.contrib.auth import get_user, get_user_model
-from norm.models import *
+
 CompanyLeader = get_user_model()
 
 skilltype=(
@@ -13,6 +13,29 @@ industries=(
     ('IT','IT'),
     ('Construction','Construction'),
 )
+
+class Hirponorms(models.Model):
+    skill = models.CharField(max_length=255,verbose_name='Bacariq')
+    skilltype = models.CharField(choices=skilltype,max_length=5,null=True,blank=True,verbose_name='skilltype')
+    department = models.CharField(max_length=255,verbose_name='Department')
+    position = models.CharField(max_length=255,verbose_name='Position')
+    norm = models.IntegerField()
+    
+    def __str__(self):
+        return f'{self.department}-{self.position}-{self.skill}'
+    
+class MainSkill(models.Model):
+    name = models.CharField(max_length=255,verbose_name='Bacariq adi')
+    skilltype = models.CharField(choices=skilltype,max_length=5,null=True,blank=True,verbose_name='skilltype')
+    description = models.TextField(null=True,blank=True)
+    
+    
+    def __str__(self):
+        return self.name
+    
+    class Meta:
+        verbose_name = 'Main SKill'
+        verbose_name_plural = 'Main Skills'
 
 """{"companyleader": 110, "project_name": "TEST","employee_number": 25, "industry": "IT", "objects": [{"name": "TEST","employee_number":3},{"name": "TEWST","employee_number":3},{"name": "TESTT","employee_number":3}]}"""
 
@@ -27,8 +50,8 @@ class Project(models.Model):
         return f'{self.project_name}'
     
     class Meta:
-        verbose_name = 'Project'
-        verbose_name_plural = 'Projectler'        
+        verbose_name = 'Company'
+        verbose_name_plural = 'Companies'        
 
 
 class ProjectDepartment(models.Model):
@@ -42,12 +65,12 @@ class ProjectDepartment(models.Model):
         return self.name
     
     class Meta:
-        verbose_name = 'Company departamenti'
-        verbose_name_plural = 'Company departamentleri'
+        verbose_name = 'Department'
+        verbose_name_plural = 'Departments'
         
     def get_allSkills(self):
         Skills = []
-        for x in Skill.objects.all():
+        for x in MainSkill.objects.all():
             Skills.append({"id":x.id,"name":x.name})
         return Skills
         
@@ -55,14 +78,11 @@ class ProjectDepartment(models.Model):
     
     def get_compatencies(self):
         comptencies = []
-        position = {}
         position = DepartmentPosition.objects.filter(department=self)
-        skills = []
         for y in position:
             for c in SkillNorm.objects.filter(position=y):
-                skills.append({'norm':c.norm,"id":c.id,"department":{"name":c.position.department.name,"id":c.position.department.id},'skill':{"name":c.skill.name,"id":c.skill.id},'position':{'name':c.position.name,'id':c.position.id}})
-        comptencies.append(skills)
-        return comptencies[0]
+                comptencies.append({'norm':c.norm,"id":c.id,"department":{"name":c.position.department.name,"id":c.position.department.id},'skill':{"name":c.skill.name,"id":c.skill.id},'position':{'name':c.position.name,'id':c.position.id}})
+        return comptencies
 
 
 class DepartmentPosition(models.Model):
@@ -74,25 +94,29 @@ class DepartmentPosition(models.Model):
         return f"{self.name} - {self.department.name}"
     
     class Meta:
-        verbose_name = 'Company position'
-        verbose_name_plural = 'Company positions'
+        verbose_name = 'Position'
+        verbose_name_plural = 'Positions'
     
-    
-        
-
-
         
 class SkillNorm(models.Model):
     position = models.ForeignKey(DepartmentPosition,on_delete=models.CASCADE)
-    skill = models.ForeignKey(Skill,on_delete=models.CASCADE)
+    skill = models.ForeignKey(MainSkill,on_delete=models.CASCADE)
     norm = models.PositiveIntegerField()
     
     def __str__(self):
-        return f'{self.position.name}-{self.skill.name}'
+        return f'{self.position.department.name}-{self.position.name}-{self.skill.name}'
     
     class Meta:
-        verbose_name = 'Sirket normasi'
-        verbose_name_plural = 'Sirket normalari'
+        verbose_name = 'Comptency norm'
+        verbose_name_plural = 'Comptency norms'
+        ordering = ['position__department__name', 'position__name', 'skill__name']
+        
+        
+    def save(self, *args, **kwargs):
+        oldobject = SkillNorm.objects.filter(position=self.position,skill=self.skill)
+        if oldobject.exists():
+            oldobject.delete()
+        super(UserSkill, self).save(*args, **kwargs)
     
 
 class User(models.Model):
@@ -113,10 +137,10 @@ class User(models.Model):
         
     def get_hard_goal(self):
         hard_goal_skill = {}
-        for x in Skill.objects.all():
+        for x in MainSkill.objects.all():
             if UserSkill.objects.filter(skill=x):
 
-                goal = UserSkill.objects.filter(skill=x).values('price')[0]['price']/SkillNorm.objects.filter(skill=x,position=self.position).values('norm')[0]['norm']
+                goal = UserSkill.objects.get(skill=x).price/SkillNorm.objects.get(skill=x,position=self.position).norm
                 if x.skilltype == 'Hard':
                     hard_goal_skill[x.name] = int(goal*100)
         if len(hard_goal_skill)>0:        
@@ -127,10 +151,10 @@ class User(models.Model):
     
     def get_soft_goal(self):
         soft_goal_skill = {}
-        for x in Skill.objects.all():
+        for x in MainSkill.objects.all():
             if UserSkill.objects.filter(skill=x):
 
-                goal = UserSkill.objects.filter(skill=x).values('price')[0]['price']/SkillNorm.objects.filter(skill=x,position=self.position).values('norm')[0]['norm']
+                goal = UserSkill.objects.get(skill=x).price/SkillNorm.objects.get(skill=x,position=self.position).norm
                 if x.skilltype == 'Soft':
                     soft_goal_skill[x.name] = int(goal*100)
         if len(soft_goal_skill)>0:        
@@ -163,7 +187,7 @@ class User(models.Model):
     
 class UserSkill(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,related_name='skills')
-    skill = models.ForeignKey(Skill, on_delete=models.CASCADE,related_name='userskill')
+    skill = models.ForeignKey(MainSkill, on_delete=models.CASCADE,related_name='userskill')
     price = models.PositiveIntegerField()
     
     def __str__(self):

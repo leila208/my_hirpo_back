@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth import authenticate, login, get_user_model
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
-
+from django.contrib.auth.forms import PasswordResetForm
 
 User = get_user_model()
 
@@ -52,3 +52,9 @@ class UserAdminChangeForm(forms.ModelForm):
             user.save()
         return user
 
+
+
+class MyUserPasswordResetForm(PasswordResetForm):
+    def __init__(self, *args, **kwargs):
+        super(MyUserPasswordResetForm, self).__init__(*args, **kwargs)
+        self.fields['email'].label = 'MyUser Email'
