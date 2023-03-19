@@ -61,7 +61,7 @@ class SimpleProjectDepartmentSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = ProjectDepartment
-        fields = ('id', 'project', 'name', 'description', 'employee_number')
+        fields = '__all__'
 
 
 class SkillNormSerializer(serializers.ModelSerializer):

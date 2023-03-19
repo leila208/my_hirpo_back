@@ -24,18 +24,7 @@ class Hirponorms(models.Model):
     def __str__(self):
         return f'{self.department}-{self.position}-{self.skill}'
     
-class MainSkill(models.Model):
-    name = models.CharField(max_length=255,verbose_name='Bacariq adi')
-    skilltype = models.CharField(choices=skilltype,max_length=5,null=True,blank=True,verbose_name='skilltype')
-    description = models.TextField(null=True,blank=True)
-    
-    
-    def __str__(self):
-        return self.name
-    
-    class Meta:
-        verbose_name = 'Main SKill'
-        verbose_name_plural = 'Main Skills'
+
 
 """{"companyleader": 110, "project_name": "TEST","employee_number": 25, "industry": "IT", "objects": [{"name": "TEST","employee_number":3},{"name": "TEWST","employee_number":3},{"name": "TESTT","employee_number":3}]}"""
 
@@ -54,6 +43,7 @@ class Project(models.Model):
         verbose_name_plural = 'Companies'        
 
 
+        
 class ProjectDepartment(models.Model):
     project = models.ForeignKey(Project,on_delete=models.CASCADE,null=True,blank=True)
     name = models.CharField(max_length=255,verbose_name='Department adi')
@@ -70,8 +60,8 @@ class ProjectDepartment(models.Model):
         
     def get_allSkills(self):
         Skills = []
-        for x in MainSkill.objects.all():
-            Skills.append({"id":x.id,"name":x.name})
+        for x in MainSkill.objects.filter(department=self):
+            Skills.append({"id":x.id,"name":x.name,'type':x.skilltype})
         return Skills
         
             
@@ -85,6 +75,19 @@ class ProjectDepartment(models.Model):
         return comptencies
 
 
+class MainSkill(models.Model):
+    name = models.CharField(max_length=255,verbose_name='Bacariq adi')
+    skilltype = models.CharField(choices=skilltype,max_length=5,null=True,blank=True,verbose_name='skilltype')
+    description = models.TextField(null=True,blank=True)
+    department = models.ForeignKey(ProjectDepartment, on_delete=models.CASCADE)
+    
+    
+    def __str__(self):
+        return f'{self.name}-{self.department.name}'    
+    class Meta:
+        verbose_name = 'Main SKill'
+        verbose_name_plural = 'Main Skills'
+        
 class DepartmentPosition(models.Model):
     name = models.CharField(max_length=20,verbose_name='Position adi')    
     description = models.TextField(verbose_name='Position haqqinda',null=True,blank=True)

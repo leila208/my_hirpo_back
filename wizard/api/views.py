@@ -164,7 +164,53 @@ class OneTimeView(APIView):
             print(serializer,x)
             serializer.save()
         return Response({'message':'success'})
+    
+class DepartmentUpdateView(APIView):
+    def post(self, request, *args, **kwargs):
+    
+        department_serializer = SimpleProjectDepartmentSerializer
+        removed = request.data.get('removedDepartments')
+        added = request.data.get('editedDepartments')
+        print(removed,'removed')
+        print(added,'added')
+        for item in removed:
+            dp = ProjectDepartment.objects.get(id=item.get('id'))
+            if dp:
+                dp.delete()
+        for item in added:
+            serializer = department_serializer(data=item)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            print(serializer)
+        return Response({"message":"success"})
        
-
+class ExcelUploadView(APIView):
+    def get(self, request,id):
+        df = pd.read_excel('media/Hirpolist.xlsx',usecols=['Department (eng)','Name of competency','Level (1-5)','Type (soft ot hard skills)','Position level'])
+        df.fillna('null', inplace=True)
+        df.rename(columns={'Level (1-5)': 'norm'}, inplace=True)
+        df.rename(columns={'Department (eng)': 'department'}, inplace=True)
+        df.rename(columns={'Name of competency': 'skill'}, inplace=True)
+        df.rename(columns={'Type (soft ot hard skills)': 'skilltype'}, inplace=True)
+        df.rename(columns={'Position level': 'position'}, inplace=True)
+       
+        data = df.to_dict(orient='records')
+        comptencies = []
+        
+        
+        
+        if data:
+            project=Project.objects.get(id=id)
+            deps = ProjectDepartment.objects.filter(project=project)
+            for x in deps:
+                for y in data:
+                    for z in x.departmentpositions.all():
+                        
+                        if x.name == y['department'] and z.name == y['position']:
+                            comptencies.append(y)
+                        
+        
+        
+        return Response({'compatencies':comptencies})
        
         

@@ -11,6 +11,8 @@ urlpatterns = [
     path("compatencies/<id>", SkillNormListView.as_view(), name="competencies"),
     path("compatencyupdate", CompatencyUpdateView.as_view(), name="competencyupdate"),
     path("goback", Go_back.as_view(), name="go_back"),
-    path('upload/', ExcelUploadView.as_view(), name='upload_excel'),
+    path('upload/<id>', ExcelUploadView.as_view(), name='upload_excel'),
     path('download/', OneTimeView.as_view(), name='download_excel'),
+    path("DepartmentUpdate", DepartmentUpdateView.as_view(), name="DepartmentUpdate")
+    
 ]
