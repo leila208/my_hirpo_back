@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from wizard.models import *
 from django.http import JsonResponse
+import pandas as pd
 
 class HirponormsSerializer(serializers.ModelSerializer):
 
@@ -58,11 +59,27 @@ class ProjectDepartmentSerializer(serializers.ModelSerializer):
         return obj.get_allSkills()
 
 class SimpleProjectDepartmentSerializer(serializers.ModelSerializer):
-    
+    compatencies = serializers.SerializerMethodField()
     class Meta:
         model = ProjectDepartment
         fields = '__all__'
+        
+    def get_compatencies(self,obj):
+        df = pd.read_excel('media/Hirpolist.xlsx',usecols=['Department (eng)','Name of competency','Level (1-5)','Type (soft ot hard skills)','Position level'])
+        df.fillna('null', inplace=True)
+        df.rename(columns={'Level (1-5)': 'norm'}, inplace=True)
+        df.rename(columns={'Department (eng)': 'department'}, inplace=True)
+        df.rename(columns={'Name of competency': 'skill'}, inplace=True)
+        df.rename(columns={'Type (soft ot hard skills)': 'skilltype'}, inplace=True)
+        df.rename(columns={'Position level': 'position'}, inplace=True)
+        data = df.to_dict(orient='records')
+        comptency = []
+        for x in data:
+            for y in obj.departmentpositions.all():
+                if x['department'] == obj.name and x['position']==y.name:
+                    comptency.append(x)
 
+        return comptency
 
 class SkillNormSerializer(serializers.ModelSerializer):
     skill = SkillSerializer()
@@ -100,5 +117,4 @@ class UserSerializer(serializers.ModelSerializer):
         return obj.get_goal()
     
 
-class ExcelSerializer(serializers.Serializer):
-    excel_file = serializers.FileField()
+

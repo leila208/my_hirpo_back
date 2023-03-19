@@ -197,8 +197,6 @@ class ExcelUploadView(APIView):
         data = df.to_dict(orient='records')
         comptencies = []
         
-        
-        
         if data:
             project=Project.objects.get(id=id)
             deps = ProjectDepartment.objects.filter(project=project)
@@ -208,9 +206,15 @@ class ExcelUploadView(APIView):
                         
                         if x.name == y['department'] and z.name == y['position']:
                             comptencies.append(y)
-                        
-        
         
         return Response({'compatencies':comptencies})
        
-        
+class ExcellUploadView(generics.ListAPIView):
+    serializer_class = SimpleProjectDepartmentSerializer
+
+    def get_queryset(self):
+        queryset = ProjectDepartment.objects.all()
+        data=self.kwargs['id']
+        if data:
+            project=Project.objects.get(id=data)
+            return queryset.filter(project=project)
