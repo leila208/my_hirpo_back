@@ -45,7 +45,7 @@ class Project(models.Model):
 
         
 class ProjectDepartment(models.Model):
-    project = models.ForeignKey(Project,on_delete=models.CASCADE,null=True,blank=True)
+    project = models.ForeignKey(Project,on_delete=models.CASCADE,null=True,blank=True,related_name='departments')
     name = models.CharField(max_length=255,verbose_name='Department adi')
     description = models.TextField(verbose_name='Department haqqinda',null=True,blank=True)
     employee_number = models.PositiveIntegerField(null=True,blank=True)
@@ -103,7 +103,7 @@ class DepartmentPosition(models.Model):
     
         
 class SkillNorm(models.Model):
-    position = models.ForeignKey(DepartmentPosition,on_delete=models.CASCADE)
+    position = models.ForeignKey(DepartmentPosition,on_delete=models.CASCADE,related_name='skillnorm')
     skill = models.ForeignKey(MainSkill,on_delete=models.CASCADE)
     norm = models.PositiveIntegerField()
     
@@ -117,10 +117,13 @@ class SkillNorm(models.Model):
         
         
     def save(self, *args, **kwargs):
-        oldobject = SkillNorm.objects.filter(position=self.position,skill=self.skill)
+        oldobject = SkillNorm.objects.filter(position__name=self.position.name,skill__name=self.skill.name,position__department=self.position.department)
+        print(self.position,self.skill)
+
         if oldobject.exists():
+            print(oldobject)
             oldobject.delete()
-        super(UserSkill, self).save(*args, **kwargs)
+        super(SkillNorm, self).save(*args, **kwargs)
     
 
 class User(models.Model):
@@ -200,6 +203,8 @@ class UserSkill(models.Model):
     def save(self, *args, **kwargs):
         oldobject = UserSkill.objects.filter(user=self.user,skill=self.skill)
         if oldobject.exists():
+            print(oldobject)
+            
             oldobject.delete()
         super(UserSkill, self).save(*args, **kwargs)
         

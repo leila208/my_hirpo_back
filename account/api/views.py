@@ -1,49 +1,49 @@
 from rest_framework import generics
 from rest_framework.response import Response
-from .serializers import LoginSerializer, RegistrationSerializer, VerifySerializer, SendResetCodeSerializer,ChangePasswordSerializer
+from .serializers import RegistrationSerializer, VerifySerializer, SendResetCodeSerializer,ChangePasswordSerializer,ActivationSerializer
 from django.contrib.auth import get_user_model, login, authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
+from account.utils import *
+from account.models import *
+from rest_framework.views import APIView
 
 User = get_user_model()
 
-class LoginView(generics.CreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = LoginSerializer
-
+class LoginView(APIView):
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        email = serializer.data.get("email")
-        password = serializer.data.get("password")
-
-        user = authenticate(email=email, password=password)
-        print(user)
+        username = request.data.get('username')
+        password = request.data.get('password')
+        user = authenticate(username=username, password=password)
+        if not user:
+            return Response({"sifre ve ya username yanlisdir"})
         login(request, user)
-
+        
+        
         refresh = RefreshToken.for_user(user)
         tokens = {
             "refresh": str(refresh),
             "access": str(refresh.access_token)
             
         }
-       
-        return Response({"email": email, "tokens": tokens,"userId":user.id}, status=201)
+        return Response({"username": username, "tokens": tokens,"userId":user.id}, status=201)
 
 
 
-class RegistrationView(generics.CreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = RegistrationSerializer
-    
 
-    def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
 
-        # login(request, user)
-        return Response({"Status": "success", "data": serializer.data}, status=200)
+class RegistrationView(APIView):     
+    def post(self,request,format=None):
+        user_serializer = RegistrationSerializer(data=request.data)
+        
+        user_serializer.is_valid(raise_exception=True)
+        user = user_serializer.save()
+        activation_code_serializer = ActivationSerializer(data={"user":user.id})
+        activation_code_serializer.is_valid(raise_exception=True)
+        activation_code_serializer.save()
+        
+        return Response({"Status": "success", "data": user_serializer.data}, status=200)
+
+
 
 
 class VerifyView(generics.RetrieveUpdateDestroyAPIView):
@@ -56,25 +56,24 @@ class VerifyView(generics.RetrieveUpdateDestroyAPIView):
         serializer = self.serializer_class(data=request.data,instance=obj)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        # print(request.dat)
-        login(request, user)
+        code = Activationcode.objects.get(user=user)
+        code.delete()
+
         return Response({"Status": "success"}, status=201)
     
     
-class SendResetCodeView(generics.CreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = SendResetCodeSerializer
-
+class SendResetCodeView(APIView):
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
+        serializer = SendResetCodeSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        id = User.objects.filter(email=serializer.data['email'])[0].id
-        print(id)
-
-
+        id = User.objects.get(email=serializer.data['email']).id
+        activation_code_serializer = ActivationSerializer(data={"user":id})
+        activation_code_serializer.is_valid(raise_exception=True)
+        activation_code_serializer.save()
+        print(activation_code_serializer,'actikseria')
         return Response({"id":id,"data": serializer.data,"Status":"success"},status=201)
-
     
+
     
 class ChangePasswordVerifyView(generics.UpdateAPIView):
     queryset = User.objects.all()
@@ -88,5 +87,7 @@ class ChangePasswordVerifyView(generics.UpdateAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
 
-        login(request, user)
+
+        code = Activationcode.objects.get(user=user)
+        code.delete()
         return Response({'Status':'Success'}, status=201)

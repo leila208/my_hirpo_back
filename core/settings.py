@@ -83,7 +83,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'core.urls'
 
-AUTH_USER_MODEL = 'account.MyUser'
+#AUTH_USER_MODEL = 'account.MyUser'
 
 TEMPLATES = [
     {

@@ -7,7 +7,7 @@ import pandas as pd
 import openpyxl
 from wizard.models import *
 
-
+#employee goal list
 class UserListView(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -42,9 +42,9 @@ class CreateProjectView(APIView):
                 elif employee_number>3 and employee_number<6:
                     data = [{'name':'Junior-Assistant'},{'name':'Senior specialist'},{'name':'Manager'}]
                 elif employee_number>5 and employee_number<11:
-                    data = [{'name':'Junior-assistant'},{'name':'Specialist'},{'name':'Senior specialist'},{'name':'Manager'}]   
+                    data = [{'name':'Junior-Assistant'},{'name':'Specialist'},{'name':'Senior specialist'},{'name':'Manager'}]   
                 elif employee_number>10:
-                    data = [{'name':'Junior-assistant'},{'name':'Specialist'},{'name':'Senior Specialist'},{'name':'Manager'},{'name':'Top manager'}]  
+                    data = [{'name':'Junior-Assistant'},{'name':'Specialist'},{'name':'Senior specialist'},{'name':'Manager'},{'name':'Top manager'}]  
            
                 for x in data:
                     position = DepartmentPositionSerializer(data=x)  
@@ -58,7 +58,7 @@ class CreateProjectView(APIView):
            
 """{"companyleader": "111", "project_name": "ss", "industry": "IT", "employee_number": "22", "inputValues": {"Hr": "22"}}"""
 
-
+#wizardpositionedit
 class PositionUpdateView(APIView):
     def put(self, request, *args, **kwargs):
         position_serializer = DepartmentPositionSerializer
@@ -80,6 +80,137 @@ class PositionUpdateView(APIView):
         return Response(serializer.data)
     
     
+
+        
+#Department icinde comptenciler istifade olunmur
+class SkillNormListView(generics.ListAPIView):
+    serializer_class = ProjectDepartmentSerializer
+    
+    def get_queryset(self):
+        queryset = ProjectDepartment.objects.all()
+        data=self.kwargs['id']
+        if data:
+            project=Project.objects.get(id=data)
+            ProjectDepartment.objects.filter(project=project)
+            return queryset.filter(project=project)
+
+#bir evvelki viewla eynidi check ele           
+class DepartmentPositionListView(generics.ListAPIView):
+    serializer_class = ProjectDepartmentSerializer
+
+    def get_queryset(self):
+        queryset = ProjectDepartment.objects.all()
+        data=self.kwargs['id']
+        if data:
+            project=Project.objects.get(id=data)
+            return queryset.filter(project=project)
+                        
+#wizardda go back ederken datanin silinmesi          
+class Go_back(APIView):
+   def delete(self, request):
+        data=request.data
+        project = Project.objects.get(id=data.get("project"))
+        project.delete()
+        return Response({"message":"success"})
+    
+#excellden sqle
+class OneTimeVieww(APIView):
+    def post(self,request):
+        df = pd.read_excel('media/Hirpolist.xlsx',usecols=['Department (eng)','Name of competency','Level (1-5)','Type (soft ot hard skills)','Position level'])
+        df.fillna('null', inplace=True)
+        df.rename(columns={'Level (1-5)': 'norm'}, inplace=True)
+        df.rename(columns={'Department (eng)': 'department'}, inplace=True)
+        df.rename(columns={'Name of competency': 'skill'}, inplace=True)
+        df.rename(columns={'Type (soft ot hard skills)': 'skilltype'}, inplace=True)
+        df.rename(columns={'Position level': 'position'}, inplace=True)
+
+        data = df.to_dict(orient='records')
+        print(data)
+        for x in data:     
+            serializer =  HirponormsSerializer(data=x)
+            serializer.is_valid(raise_exception=True)
+            print(serializer,x)
+            serializer.save()
+        return Response({'message':'success'})
+    
+#after positions in wizard continue for creating norms
+class OneTimeView(APIView):
+
+    def post(self,*args,**kwargs):
+
+        df = pd.read_excel('media/Hirpolist.xlsx',usecols=['Department (eng)','Name of competency','Level (1-5)','Type (soft ot hard skills)','Position level'])
+        df.fillna('null', inplace=True)
+        df.rename(columns={'Level (1-5)': 'norm'}, inplace=True)
+        df.rename(columns={'Department (eng)': 'department'}, inplace=True)
+        df.rename(columns={'Name of competency': 'skill'}, inplace=True)
+        df.rename(columns={'Type (soft ot hard skills)': 'skilltype'}, inplace=True)
+        df.rename(columns={'Position level': 'position'}, inplace=True)
+
+        data = df.to_dict(orient='records')
+        
+        id = kwargs.get('id')
+        
+        mylist = []
+        if id:
+            project=Project.objects.get(id=id)
+        departments = ProjectDepartment.objects.filter(project=project)
+        number = 0
+        for x in departments:
+            positions = DepartmentPosition.objects.filter(department=x.id)
+            for item in data:
+                for position in positions:
+                    if item['position']==position.name and item['department']==position.department.name:
+                        print(x.id)
+                        skill = SkillSerializer(data={'name':item['skill'],'department':x.id})
+                        skill.is_valid(raise_exception=True)
+                        newskill = skill.save()
+                        norm = SimpleSkillNormSerializer(data={'norm':item['norm'],'position':position.id,'skill':newskill.id})
+                        norm.is_valid(raise_exception=True)
+                        norm.save()
+                        number +=1
+        return Response({"success":number})
+    
+    
+#organizial chart department update
+class DepartmentUpdateView(APIView):
+    def post(self, request, *args, **kwargs):
+        
+        department_serializer = SimpleProjectDepartmentSerializer
+        removed = request.data.get('removedDepartments')
+        added = request.data.get('editedDepartments')
+        print(removed,'removed')
+        print(added,'added')
+        for item in removed:
+            dp = ProjectDepartment.objects.get(id=item.get('id'))
+            if dp:
+                dp.delete()
+        for item in added:
+            serializer = department_serializer(data=item)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            print(serializer)
+        return Response({"message":"success"})
+
+#wizardda comptency list view yaratmadan evvel       
+class ExcellUploadView(generics.ListAPIView):
+    serializer_class = SimpleProjectDepartmentSerializer
+
+    def get_queryset(self):
+        queryset = ProjectDepartment.objects.all()
+        data=self.kwargs['id']
+        if data:
+            project=Project.objects.get(id=data)
+            return queryset.filter(project=project)
+        
+class WizardComptencySaveView(APIView):
+    def post(self,request):
+        data = request.data
+        for comptency in data:
+            serializer = SkillNormSerializer(data=comptency)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+        return Response({'message':'success'})
+
 class CompatencyUpdateView(APIView):
     def put(self, request, *args, **kwargs):
         compatency_serializer = SkillNormUpdateSerializer
@@ -100,121 +231,3 @@ class CompatencyUpdateView(APIView):
     "position": 73,
     "skill": 1
     }"""        
-        
-
-class SkillNormListView(generics.ListAPIView):
-    serializer_class = ProjectDepartmentSerializer
-    
-    def get_queryset(self):
-        queryset = ProjectDepartment.objects.all()
-        data=self.kwargs['id']
-        if data:
-            project=Project.objects.get(id=data)
-            ProjectDepartment.objects.filter(project=project)
-            return queryset.filter(project=project)
-
-            
-class DepartmentPositionListView(generics.ListAPIView):
-    serializer_class = ProjectDepartmentSerializer
-
-    def get_queryset(self):
-        queryset = ProjectDepartment.objects.all()
-        data=self.kwargs['id']
-        if data:
-            project=Project.objects.get(id=data)
-            return queryset.filter(project=project)
-                        
-                
-class Go_back(APIView):
-   def delete(self, request):
-        data=request.data
-        project = Project.objects.get(id=data.get("project"))
-        project.delete()
-        return Response({"message":"success"})
-    
-
-class ExcelUploadView(APIView):
-    def get(self, request):
-        df = pd.read_excel('media/Hirpolist.xlsx',usecols=['Department (eng)','Name of competency','Level (1-5)','Type (soft ot hard skills)','Position level'])
-        df.fillna('null', inplace=True)
-        df.rename(columns={'Level (1-5)': 'norm'}, inplace=True)
-        df.rename(columns={'Department (eng)': 'department'}, inplace=True)
-        df.rename(columns={'Name of competency': 'skill'}, inplace=True)
-        df.rename(columns={'Type (soft ot hard skills)': 'skilltype'}, inplace=True)
-        df.rename(columns={'Position level': 'position'}, inplace=True)
-       
-        data = df.to_dict(orient='records')
-        return Response(data)
-
-class OneTimeView(APIView):
-    def post(self,request):
-        df = pd.read_excel('media/Hirpolist.xlsx',usecols=['Department (eng)','Name of competency','Level (1-5)','Type (soft ot hard skills)','Position level'])
-        df.fillna('null', inplace=True)
-        df.rename(columns={'Level (1-5)': 'norm'}, inplace=True)
-        df.rename(columns={'Department (eng)': 'department'}, inplace=True)
-        df.rename(columns={'Name of competency': 'skill'}, inplace=True)
-        df.rename(columns={'Type (soft ot hard skills)': 'skilltype'}, inplace=True)
-        df.rename(columns={'Position level': 'position'}, inplace=True)
-
-        data = df.to_dict(orient='records')
-        print(data)
-        for x in data:     
-            serializer =  HirponormsSerializer(data=x)
-            serializer.is_valid(raise_exception=True)
-            print(serializer,x)
-            serializer.save()
-        return Response({'message':'success'})
-    
-class DepartmentUpdateView(APIView):
-    def post(self, request, *args, **kwargs):
-    
-        department_serializer = SimpleProjectDepartmentSerializer
-        removed = request.data.get('removedDepartments')
-        added = request.data.get('editedDepartments')
-        print(removed,'removed')
-        print(added,'added')
-        for item in removed:
-            dp = ProjectDepartment.objects.get(id=item.get('id'))
-            if dp:
-                dp.delete()
-        for item in added:
-            serializer = department_serializer(data=item)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            print(serializer)
-        return Response({"message":"success"})
-       
-class ExcelUploadView(APIView):
-    def get(self, request,id):
-        df = pd.read_excel('media/Hirpolist.xlsx',usecols=['Department (eng)','Name of competency','Level (1-5)','Type (soft ot hard skills)','Position level'])
-        df.fillna('null', inplace=True)
-        df.rename(columns={'Level (1-5)': 'norm'}, inplace=True)
-        df.rename(columns={'Department (eng)': 'department'}, inplace=True)
-        df.rename(columns={'Name of competency': 'skill'}, inplace=True)
-        df.rename(columns={'Type (soft ot hard skills)': 'skilltype'}, inplace=True)
-        df.rename(columns={'Position level': 'position'}, inplace=True)
-       
-        data = df.to_dict(orient='records')
-        comptencies = []
-        
-        if data:
-            project=Project.objects.get(id=id)
-            deps = ProjectDepartment.objects.filter(project=project)
-            for x in deps:
-                for y in data:
-                    for z in x.departmentpositions.all():
-                        
-                        if x.name == y['department'] and z.name == y['position']:
-                            comptencies.append(y)
-        
-        return Response({'compatencies':comptencies})
-       
-class ExcellUploadView(generics.ListAPIView):
-    serializer_class = SimpleProjectDepartmentSerializer
-
-    def get_queryset(self):
-        queryset = ProjectDepartment.objects.all()
-        data=self.kwargs['id']
-        if data:
-            project=Project.objects.get(id=data)
-            return queryset.filter(project=project)

@@ -22,8 +22,6 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = '__all__'
         
 
-    
-    
         
 class DepartmentPositionSerializer(serializers.ModelSerializer):
     
@@ -63,23 +61,16 @@ class SimpleProjectDepartmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProjectDepartment
         fields = '__all__'
+    
         
     def get_compatencies(self,obj):
-        df = pd.read_excel('media/Hirpolist.xlsx',usecols=['Department (eng)','Name of competency','Level (1-5)','Type (soft ot hard skills)','Position level'])
-        df.fillna('null', inplace=True)
-        df.rename(columns={'Level (1-5)': 'norm'}, inplace=True)
-        df.rename(columns={'Department (eng)': 'department'}, inplace=True)
-        df.rename(columns={'Name of competency': 'skill'}, inplace=True)
-        df.rename(columns={'Type (soft ot hard skills)': 'skilltype'}, inplace=True)
-        df.rename(columns={'Position level': 'position'}, inplace=True)
-        data = df.to_dict(orient='records')
-        comptency = []
-        for x in data:
-            for y in obj.departmentpositions.all():
-                if x['department'] == obj.name and x['position']==y.name:
-                    comptency.append(x)
-
-        return comptency
+        competencies = []
+        for y in obj.departmentpositions.all():
+            
+            for norm in SkillNorm.objects.filter(position=y,position__department__id=obj.id):
+                competencies.append({'id':norm.id,'norm':norm.norm,'position':{'name':y.name,'id':y.id,'department':obj.id},'department':{'name':obj.name,'id':obj.id,'project':obj.project.id},'skill':{'name':norm.skill.name,'id':norm.skill.id,'department':norm.skill.department.id}})
+        print(competencies)
+        return competencies
 
 class SkillNormSerializer(serializers.ModelSerializer):
     skill = SkillSerializer()
@@ -89,10 +80,29 @@ class SkillNormSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class SimpleSkillNormSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = SkillNorm
+        fields = '__all__'
+    
+    # def create(self, validated_data):
+    #     position = validated_data.get('position')
+    #     skill = validated_data.get('skill')
+    #     old_object = SkillNorm.objects.filter(position=position, skill=skill)
+    #     if old_object.exists():
+    #         old_object.delete()
+    #     new_object = SkillNorm.objects.create(**validated_data)
+    #     return new_object
+
+        
+
+
 class SkillNormUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = SkillNorm
         fields = '__all__'
+        
         
 
 class UserSerializer(serializers.ModelSerializer):
