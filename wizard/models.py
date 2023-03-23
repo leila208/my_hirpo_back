@@ -59,8 +59,10 @@ class ProjectDepartment(models.Model):
         
     def get_allSkills(self):
         Skills = []
-        for x in MainSkill.objects.filter(department=self):
-            Skills.append({"id":x.id,"name":x.name,'type':x.skilltype})
+        for y in self.departmentpositions.all():
+            
+            for x in MainSkill.objects.filter(position=y):
+                Skills.append({"id":x.id,"name":x.name,'type':x.skilltype})
         return Skills
         
             

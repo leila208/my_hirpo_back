@@ -10,7 +10,7 @@ from account.api.permissions import IsCompanyLead
 User = get_user_model()
 
 class LoginView(APIView):
-    permission_classes = [IsCompanyLead]
+    # permission_classes = [IsCompanyLead]
     def post(self, request, *args, **kwargs):
         username = request.data.get('username')
         password = request.data.get('password')
