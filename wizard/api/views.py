@@ -9,7 +9,7 @@ from wizard.models import *
 
 #employee goal list
 class UserListView(generics.ListAPIView):
-    queryset = User.objects.all()
+    queryset = Employee.objects.all()
     serializer_class = UserSerializer
 
 class CreateProjectView(APIView):     
@@ -161,7 +161,7 @@ class OneTimeView(APIView):
                 for position in positions:
                     if item['position']==position.name and item['department']==position.department.name:
                         print(x.id)
-                        skill = SkillSerializer(data={'name':item['skill'],'department':x.id})
+                        skill = SkillSerializer(data={'name':item['skill'],'position':position.id})
                         skill.is_valid(raise_exception=True)
                         newskill = skill.save()
                         norm = SimpleSkillNormSerializer(data={'norm':item['norm'],'position':position.id,'skill':newskill.id})

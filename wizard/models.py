@@ -2,7 +2,7 @@ from django.db import models
 from account.utils import create_slug_shortcode
 from django.contrib.auth import get_user, get_user_model
 
-CompanyLeader = get_user_model()
+User = get_user_model()
 
 skilltype=(
     ('Soft','Soft'),
@@ -29,7 +29,6 @@ class Hirponorms(models.Model):
 """{"companyleader": 110, "project_name": "TEST","employee_number": 25, "industry": "IT", "objects": [{"name": "TEST","employee_number":3},{"name": "TEWST","employee_number":3},{"name": "TESTT","employee_number":3}]}"""
 
 class Project(models.Model):
-    companyleader = models.ForeignKey(CompanyLeader,on_delete=models.CASCADE, null=True,blank=True)
     project_name = models.CharField(max_length=255,verbose_name='Project adi')
     employee_number = models.PositiveIntegerField(verbose_name='Isci sayi')
     industry = models.CharField(max_length=30, choices=industries, verbose_name='Company field')
@@ -73,21 +72,8 @@ class ProjectDepartment(models.Model):
             for c in SkillNorm.objects.filter(position=y):
                 comptencies.append({'norm':c.norm,"id":c.id,"department":{"name":c.position.department.name,"id":c.position.department.id},'skill':{"name":c.skill.name,"id":c.skill.id},'position':{'name':c.position.name,'id':c.position.id}})
         return comptencies
-
-
-class MainSkill(models.Model):
-    name = models.CharField(max_length=255,verbose_name='Bacariq adi')
-    skilltype = models.CharField(choices=skilltype,max_length=5,null=True,blank=True,verbose_name='skilltype')
-    description = models.TextField(null=True,blank=True)
-    department = models.ForeignKey(ProjectDepartment, on_delete=models.CASCADE)
     
     
-    def __str__(self):
-        return f'{self.name}-{self.department.name}'    
-    class Meta:
-        verbose_name = 'Main SKill'
-        verbose_name_plural = 'Main Skills'
-        
 class DepartmentPosition(models.Model):
     name = models.CharField(max_length=20,verbose_name='Position adi')    
     description = models.TextField(verbose_name='Position haqqinda',null=True,blank=True)
@@ -100,8 +86,24 @@ class DepartmentPosition(models.Model):
     class Meta:
         verbose_name = 'Position'
         verbose_name_plural = 'Positions'
-    
         
+
+class MainSkill(models.Model):
+    name = models.CharField(max_length=255,verbose_name='Bacariq adi')
+    skilltype = models.CharField(choices=skilltype,max_length=5,null=True,blank=True,verbose_name='skilltype')
+    description = models.TextField(null=True,blank=True)
+    position = models.ForeignKey(DepartmentPosition, on_delete=models.CASCADE)
+    
+    
+    def __str__(self):
+        return f'{self.name}-{self.department.name}'    
+    class Meta:
+        verbose_name = 'Main SKill'
+        verbose_name_plural = 'Main Skills'
+        
+        
+
+
 class SkillNorm(models.Model):
     position = models.ForeignKey(DepartmentPosition,on_delete=models.CASCADE,related_name='skillnorm')
     skill = models.ForeignKey(MainSkill,on_delete=models.CASCADE)
@@ -126,16 +128,19 @@ class SkillNorm(models.Model):
         super(SkillNorm, self).save(*args, **kwargs)
     
 
-class User(models.Model):
-    project = models.ForeignKey(Project,on_delete=models.CASCADE)
-    name = models.CharField(max_length=20,verbose_name='User adi')
-    surname = models.CharField(max_length=20,verbose_name='User soyadi')
-    position = models.ForeignKey(DepartmentPosition,related_name='user',on_delete=models.CASCADE,verbose_name='User position')
-    department = models.ForeignKey(ProjectDepartment,related_name='user',on_delete=models.CASCADE,verbose_name='User departmenti')
+class Employee(models.Model):
+    user = models.OneToOneField(User,null=True,blank=True,related_name='employee',on_delete=models.SET_NULL)
+    project = models.ForeignKey(Project,on_delete=models.CASCADE,related_name='employee',null=True,blank=True)
+    first_name = models.CharField(max_length=20,verbose_name='User adi',null=True,blank=True)
+    last_name = models.CharField(max_length=20,verbose_name='User soyadi',null=True,blank=True)
+    position = models.ForeignKey(DepartmentPosition,related_name='user',on_delete=models.CASCADE,verbose_name='User position',null=True,blank=True)
+    salary = models.PositiveIntegerField(null=True,blank=True)
+    hire_date = models.DateField(null=True,blank=True,auto_now_add=True)
+    is_systemadmin = models.BooleanField(default=False,null=True,blank=True)
     
     
     def __str__(self):
-        return f'{self.name}-{self.surname}'
+        return f'{self.user}-'
     
     class Meta:
         ordering = ['-position']
@@ -190,10 +195,8 @@ class User(models.Model):
                     
             
             
-
-    
 class UserSkill(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE,related_name='skills')
+    Employee = models.ForeignKey(Employee, on_delete=models.CASCADE,related_name='skills')
     skill = models.ForeignKey(MainSkill, on_delete=models.CASCADE,related_name='userskill')
     price = models.PositiveIntegerField()
     

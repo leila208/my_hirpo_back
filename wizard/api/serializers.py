@@ -114,7 +114,7 @@ class UserSerializer(serializers.ModelSerializer):
     goal = serializers.SerializerMethodField()
 
     class Meta:
-        model = User
+        model = Employee
         fields = '__all__'
     
     def get_soft_goal(self,obj):

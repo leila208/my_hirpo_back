@@ -4,7 +4,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from account.utils import create_activation_code,create_password_reset_code
 from account.models import *
-
+from wizard.models import Employee
 User = get_user_model()
 
 
@@ -153,3 +153,9 @@ class ActivationSerializer(serializers.ModelSerializer):
             fail_silently=False,
         )
         return Code
+    
+class EmployeeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Employee
+        fields = ("user", "is_systemadmin")
