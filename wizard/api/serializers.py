@@ -68,7 +68,7 @@ class SimpleProjectDepartmentSerializer(serializers.ModelSerializer):
         for y in obj.departmentpositions.all():
             
             for norm in MainSkill.objects.filter(position=y,position__department__id=obj.id):
-                competencies.append({'id':norm.id,'norm':norm.norm,'position':{'name':y.name,'id':y.id,'department':obj.id},'department':{'name':obj.name,'id':obj.id,'project':obj.project.id},'skill':{'name':norm.skill.name,'id':norm.skill.id,'department':norm.skill.position.department.id}})
+                competencies.append({'id':norm.id,'norm':norm.norm,'position':{'name':y.name,'id':y.id,'department':obj.id},'department':{'name':obj.name,'id':obj.id,'project':obj.project.id},'skill':{'name':norm.name,'id':norm.id,'department':norm.position.department.id}})
         print(competencies)
         return competencies
 

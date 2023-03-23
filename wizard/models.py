@@ -72,7 +72,7 @@ class ProjectDepartment(models.Model):
         position = DepartmentPosition.objects.filter(department=self)
         for y in position:
             for c in MainSkill.objects.filter(position=y):
-                comptencies.append({'norm':c.norm,"id":c.id,"department":{"name":c.position.department.name,"id":c.position.department.id},'skill':{"name":c.skill.name,"id":c.skill.id},'position':{'name':c.position.name,'id':c.position.id}})
+                comptencies.append({'norm':c.norm,"id":c.id,"department":{"name":c.position.department.name,"id":c.position.department.id},'skill':{"name":c.name,"id":c.id},'position':{'name':c.position.name,'id':c.position.id}})
         return comptencies
     
     

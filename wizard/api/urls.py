@@ -6,14 +6,14 @@ app_name = "wizard-api"
 urlpatterns = [
     path("employees/", UserListView.as_view(), name="employees"),
     path("start", CreateProjectView.as_view(), name="start"),
-    path("positionupdate", PositionUpdateView.as_view(), name="positionupdate"),
+    path("positionupdate/", PositionUpdateView.as_view(), name="positionupdate"),
     path("depposition/<id>", DepartmentPositionListView.as_view(), name="depposition"),
     path("compatencies/<id>", SkillNormListView.as_view(), name="competencies"),
     path("compatencyupdate/", CompatencyUpdateView.as_view(), name="competencyupdate"),
-    path("goback", Go_back.as_view(), name="go_back"),
+    path("goback/", Go_back.as_view(), name="go_back"),
     path('upload/<id>', ExcellUploadView.as_view(), name='upload_excel'),
     path('download/<id>', OneTimeView.as_view(), name='download_excel'),
-    path("DepartmentUpdate", DepartmentUpdateView.as_view(), name="DepartmentUpdate"),
+    path("DepartmentUpdate/", DepartmentUpdateView.as_view(), name="DepartmentUpdate"),
     path("WizardComptencySaveView/", WizardComptencySaveView.as_view(), name="WizardComptencySaveView"),
     path("CompatencyUpdateView/", CompatencyUpdateView.as_view(), name="CompatencyUpdateView")
 

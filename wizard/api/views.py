@@ -160,13 +160,10 @@ class OneTimeView(APIView):
             for item in data:
                 for position in positions:
                     if item['position']==position.name and item['department']==position.department.name:
-
-                        skill = SkillSerializer(data={'name':item['skill'],'position':position.id})
+  
+                        skill = SkillSerializer(data={'name':item['skill'],'position':position.id,'norm':item['norm']})
                         skill.is_valid(raise_exception=True)
-                        newskill = skill.save()
-                        norm = SimpleSkillNormSerializer(data={'norm':item['norm'],'position':position.id,'skill':newskill.id})
-                        norm.is_valid(raise_exception=True)
-                        norm.save()
+                        skill.save()
                         number +=1
         return Response({"success":number})
     
