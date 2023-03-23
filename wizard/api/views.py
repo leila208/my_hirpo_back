@@ -150,7 +150,7 @@ class OneTimeView(APIView):
         
         id = kwargs.get('id')
         
-        mylist = []
+
         if id:
             project=Project.objects.get(id=id)
         departments = ProjectDepartment.objects.filter(project=project)
@@ -160,7 +160,7 @@ class OneTimeView(APIView):
             for item in data:
                 for position in positions:
                     if item['position']==position.name and item['department']==position.department.name:
-                        print(x.id)
+
                         skill = SkillSerializer(data={'name':item['skill'],'position':position.id})
                         skill.is_valid(raise_exception=True)
                         newskill = skill.save()
@@ -217,7 +217,7 @@ class CompatencyUpdateView(APIView):
         data = [request.data]
         for compatency_data in data:
 
-            compatency = SkillNorm.objects.get(id=compatency_data.get('id'))
+            compatency = MainSkill.objects.get(id=compatency_data.get('id'))
             serializer = compatency_serializer(compatency,data=compatency_data)
             print(serializer)
             serializer.is_valid(raise_exception=True)

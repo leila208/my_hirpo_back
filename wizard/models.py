@@ -71,7 +71,7 @@ class ProjectDepartment(models.Model):
         comptencies = []
         position = DepartmentPosition.objects.filter(department=self)
         for y in position:
-            for c in SkillNorm.objects.filter(position=y):
+            for c in MainSkill.objects.filter(position=y):
                 comptencies.append({'norm':c.norm,"id":c.id,"department":{"name":c.position.department.name,"id":c.position.department.id},'skill':{"name":c.skill.name,"id":c.skill.id},'position':{'name':c.position.name,'id':c.position.id}})
         return comptencies
     
@@ -95,10 +95,11 @@ class MainSkill(models.Model):
     skilltype = models.CharField(choices=skilltype,max_length=5,null=True,blank=True,verbose_name='skilltype')
     description = models.TextField(null=True,blank=True)
     position = models.ForeignKey(DepartmentPosition, on_delete=models.CASCADE)
-    
+    norm = models.PositiveIntegerField(null=True,blank=True)
     
     def __str__(self):
-        return f'{self.name}-{self.department.name}'    
+        return f'{self.name}-{self.position.name}' 
+       
     class Meta:
         verbose_name = 'Main SKill'
         verbose_name_plural = 'Main Skills'
@@ -106,28 +107,22 @@ class MainSkill(models.Model):
         
 
 
-class SkillNorm(models.Model):
-    position = models.ForeignKey(DepartmentPosition,on_delete=models.CASCADE,related_name='skillnorm')
-    skill = models.ForeignKey(MainSkill,on_delete=models.CASCADE)
-    norm = models.PositiveIntegerField()
-    
-    def __str__(self):
-        return f'{self.position.department.name}-{self.position.name}-{self.skill.name}'
-    
-    class Meta:
-        verbose_name = 'Comptency norm'
-        verbose_name_plural = 'Comptency norms'
-        ordering = ['position__department__name', 'position__name', 'skill__name']
-        
-        
-    def save(self, *args, **kwargs):
-        oldobject = SkillNorm.objects.filter(position__name=self.position.name,skill__name=self.skill.name,position__department=self.position.department)
-        print(self.position,self.skill)
 
-        if oldobject.exists():
-            print(oldobject)
-            oldobject.delete()
-        super(SkillNorm, self).save(*args, **kwargs)
+    
+    # class Meta:
+    #     verbose_name = 'Comptency norm'
+    #     verbose_name_plural = 'Comptency norms'
+    #     ordering = ['position__department__name', 'position__name', 'skill__name']
+        
+        
+    # def save(self, *args, **kwargs):
+    #     oldobject = SkillNorm.objects.filter(position__name=self.position.name,skill__name=self.skill.name,position__department=self.position.department)
+    #     print(self.position,self.skill)
+
+    #     if oldobject.exists():
+    #         print(oldobject)
+    #         oldobject.delete()
+    #     super(SkillNorm, self).save(*args, **kwargs)
     
 
 class Employee(models.Model):
@@ -154,7 +149,7 @@ class Employee(models.Model):
         for x in MainSkill.objects.all():
             if UserSkill.objects.filter(skill=x):
 
-                goal = UserSkill.objects.get(skill=x).price/SkillNorm.objects.get(skill=x,position=self.position).norm
+                goal = UserSkill.objects.get(skill=x).price/MainSkill.objects.get(skill=x,position=self.position).norm
                 if x.skilltype == 'Hard':
                     hard_goal_skill[x.name] = int(goal*100)
         if len(hard_goal_skill)>0:        
@@ -168,7 +163,7 @@ class Employee(models.Model):
         for x in MainSkill.objects.all():
             if UserSkill.objects.filter(skill=x):
 
-                goal = UserSkill.objects.get(skill=x).price/SkillNorm.objects.get(skill=x,position=self.position).norm
+                goal = UserSkill.objects.get(skill=x).price/MainSkill.objects.get(skill=x,position=self.position).norm
                 if x.skilltype == 'Soft':
                     soft_goal_skill[x.name] = int(goal*100)
         if len(soft_goal_skill)>0:        
