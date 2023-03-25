@@ -72,9 +72,8 @@ class SimpleProjectDepartmentSerializer(serializers.ModelSerializer):
         print(competencies)
         return competencies
 
-class SkillNormSerializer(serializers.ModelSerializer):
-    skill = SkillSerializer()
-    position = DepartmentPositionSerializer()
+class SkillNormCreateSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = MainSkill
         fields = '__all__'
@@ -101,7 +100,7 @@ class SimpleSkillNormSerializer(serializers.ModelSerializer):
 class SkillNormUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = MainSkill
-        fields = '__all__'
+        fields = ['id','norm']
         
         
 

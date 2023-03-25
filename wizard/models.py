@@ -96,6 +96,7 @@ class MainSkill(models.Model):
     description = models.TextField(null=True,blank=True)
     position = models.ForeignKey(DepartmentPosition, on_delete=models.CASCADE)
     norm = models.PositiveIntegerField(null=True,blank=True)
+    weight = models.IntegerField(null=True,blank=True)
     
     def __str__(self):
         return f'{self.name}-{self.position.name}' 
@@ -134,7 +135,7 @@ class Employee(models.Model):
     salary = models.PositiveIntegerField(null=True,blank=True)
     hire_date = models.DateField(null=True,blank=True,auto_now_add=True)
     is_systemadmin = models.BooleanField(default=False,null=True,blank=True)
-    
+    weight = models.IntegerField(null=True,blank=True)
     
     def __str__(self):
         return f'{self.user}-'

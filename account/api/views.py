@@ -41,7 +41,7 @@ class RegistrationView(APIView):
         activation_code_serializer = ActivationSerializer(data={"user":user.id})
         activation_code_serializer.is_valid(raise_exception=True)
         activation_code_serializer.save()
-        employeeSerializer = EmployeeSerializer(user = user,is_systemadmin=True)
+        employeeSerializer = EmployeeSerializer(data={"user":user.id,"is_systemadmin":True})
         employeeSerializer.is_valid(raise_exception=True)
         employeeSerializer.save()
         return Response({"Status": "success", "data": user_serializer.data}, status=200)

@@ -202,12 +202,33 @@ class ExcellUploadView(generics.ListAPIView):
 class WizardComptencySaveView(APIView):
     def post(self,request):
         data = request.data
-        for comptency in data:
-            serializer = SkillNormSerializer(data=comptency)
+        for comptency in data['createdNorms']:
+            serializer = SkillNormCreateSerializer(data={'norm':comptency['newNorm']})
+            department = ProjectDepartment.objects.get(name=comptency['name'])
+            serializer.skill = MainSkill.objects.get(name=comptency['skill'],department=department)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-        return Response({'message':'success'})
-
+        return Response({'message':'create success'})
+    
+    def put(self,request):
+        data= request.data
+        for comptency in data['editedNorms']:
+            comp = MainSkill.objects.get(id=comptency['id'])
+            serializer = SkillNormUpdateSerializer(comp,data={'norm':comptency['newNorm']})
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+        return Response({'message':'edit success'})
+    
+    def delete(self,request):
+        data=request.data['removedNorms']
+        for comptency in data:
+            myobj = MainSkill.objects.get(id=comptency['id'])
+            myobj.delete()
+        return Response({'message':'delete success'})
+            
+            
+            
+            
 class CompatencyUpdateView(APIView):
     def put(self, request, *args, **kwargs):
         compatency_serializer = SkillNormUpdateSerializer
