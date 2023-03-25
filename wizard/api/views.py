@@ -203,26 +203,25 @@ class WizardComptencySaveView(APIView):
     def post(self,request):
         data = request.data
         for comptency in data['createdNorms']:
-            serializer = SkillNormCreateSerializer(data={'norm':comptency['newNorm']})
-            department = ProjectDepartment.objects.get(name=comptency['name'])
-            serializer.skill = MainSkill.objects.get(name=comptency['skill'],department=department)
+            department = ProjectDepartment.objects.get(name=comptency['department'])
+            position=DepartmentPosition.objects.get(name=comptency['position'],department=department)
+            
+            serializer = SkillNormCreateSerializer(data={'norm':comptency['newNorm'],"name":comptency['skill'],"position":position.id})
+            
+         
             serializer.is_valid(raise_exception=True)
             serializer.save()
-        return Response({'message':'create success'})
-    
-    def put(self,request):
-        data= request.data
+
         for comptency in data['editedNorms']:
             comp = MainSkill.objects.get(id=comptency['id'])
-            serializer = SkillNormUpdateSerializer(comp,data={'norm':comptency['newNorm']})
+     
+            serializer = SkillNormUpdateSerializer(comp,data={'norm':comptency['norm']})
             serializer.is_valid(raise_exception=True)
             serializer.save()
-        return Response({'message':'edit success'})
-    
-    def delete(self,request):
-        data=request.data['removedNorms']
-        for comptency in data:
-            myobj = MainSkill.objects.get(id=comptency['id'])
+
+        for comptency in data['removedNorms']:
+            myobj = MainSkill.objects.get(id=comptency)
+            print(myobj)
             myobj.delete()
         return Response({'message':'delete success'})
             
