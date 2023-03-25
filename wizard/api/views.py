@@ -229,18 +229,7 @@ class WizardComptencySaveView(APIView):
             
             
             
-class CompatencyUpdateView(APIView):
-    def put(self, request, *args, **kwargs):
-        compatency_serializer = SkillNormUpdateSerializer
-        data = [request.data]
-        for compatency_data in data:
 
-            compatency = MainSkill.objects.get(id=compatency_data.get('id'))
-            serializer = compatency_serializer(compatency,data=compatency_data)
-            print(serializer)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-        return Response({"message":"success"})
     
 """{  
     "id": 3,
