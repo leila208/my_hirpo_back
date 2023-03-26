@@ -52,9 +52,9 @@ class CreateProjectView(APIView):
                         position.save(department=department)
                 #Department.objects.bulk_create()
                 #bulk create daha uzun imis
-        return Response({"message":"success","project":project_serializer.data['id']},status=201)
+        return Response({"message":"success","project":project_serializer.data.get('id')},status=201)
    
-    
+    #projectserializer.data.get('id') 55deki projectserializer.data['id'] idi check ele
            
 """{"companyleader": "111", "project_name": "ss", "industry": "IT", "employee_number": "22", "inputValues": {"Hr": "22"}}"""
 
@@ -202,7 +202,7 @@ class ExcellUploadView(generics.ListAPIView):
 class WizardComptencySaveView(APIView):
     def post(self,request):
         data = request.data
-        for comptency in data['createdNorms']:
+        for comptency in data.get('createdNorms'):
             department = ProjectDepartment.objects.get(name=comptency['department'])
             position=DepartmentPosition.objects.get(name=comptency['position'],department=department)
             
@@ -212,22 +212,31 @@ class WizardComptencySaveView(APIView):
             serializer.is_valid(raise_exception=True)
             serializer.save()
 
-        for comptency in data['editedNorms']:
+        for comptency in data.get('editedNorms'):
             comp = MainSkill.objects.get(id=comptency['id'])
      
             serializer = SkillNormUpdateSerializer(comp,data={'norm':comptency['norm']})
             serializer.is_valid(raise_exception=True)
             serializer.save()
 
-        for comptency in data['removedNorms']:
+        for comptency in data.get('removedNorms'):
             myobj = MainSkill.objects.get(id=comptency)
             print(myobj)
             myobj.delete()
         return Response({'message':'delete success'})
             
-            
-            
-            
+class WeightUpdateView(APIView):     
+     
+    def put(self, request): 
+        serializer = WeightUpdateSerializer   
+        data=request.data
+        for item in data:
+            object = MainSkill.objects.get(id=item.get('id'))
+            if object:
+                myseria = serializer(object,data=item)
+                myseria.is_valid(raise_exception=True)
+                myseria.save()
+        return Response({'message':'success'})
 
     
 """{  

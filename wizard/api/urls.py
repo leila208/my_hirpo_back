@@ -14,6 +14,7 @@ urlpatterns = [
     path('download/<id>', OneTimeView.as_view(), name='download_excel'),
     path("DepartmentUpdate/", DepartmentUpdateView.as_view(), name="DepartmentUpdate"),
     path("WizardComptencySaveView", WizardComptencySaveView.as_view(), name="WizardComptencySaveView"),
+    path("weightUpdateView", WeightUpdateView.as_view(), name="WeightUpdateView"),
 
 
 ]

@@ -107,7 +107,10 @@ class SkillNormUpdateSerializer(serializers.ModelSerializer):
         model = MainSkill
         fields = ['id','norm']
         
-        
+class WeightUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MainSkill
+        fields = ['id','weight']
 
 class UserSerializer(serializers.ModelSerializer):
     project = ProjectSerializer()
