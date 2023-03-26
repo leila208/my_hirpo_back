@@ -62,7 +62,7 @@ class ProjectDepartment(models.Model):
         for y in self.departmentpositions.all():
             
             for x in MainSkill.objects.filter(position=y):
-                Skills.append({"id":x.id,"name":x.name,'type':x.skilltype})
+                Skills.append({"id":x.id,"name":x.name,'type':x.skilltype,"weight":x.weight})
         return Skills
         
             
@@ -83,7 +83,7 @@ class DepartmentPosition(models.Model):
     
     
     def __str__(self):
-        return f"{self.name} - {self.department.name}"
+        return f"{self.name} - {self.department.name} - {self.department.project.project_name}"
     
     class Meta:
         verbose_name = 'Position'
@@ -175,21 +175,22 @@ class Employee(models.Model):
     
     def get_goal(self):    
         soft,hard = self.get_soft_goal()['average'],self.get_hard_goal()['average']
-        if soft == 0 or hard>100:
-            soft = 100
-        if hard == 0 or hard>100:
-            hard = 100
-        if self.position.name == 'Junior':
-            return int((soft + hard*3)/4)
-        if self.position.name == 'Specialist':
-            return int((soft*4+hard*6)/10)
-        if self.position.name == 'Senior':
-            return int((soft+hard)/2)
-        if self.position.name == 'Manager':
-            return int((soft*6+hard*4)/10)
-        if self.position.name == 'TopManager':
-            return int((soft*3+hard)/4)
-        return 'Set employee position'    
+        if self.position:
+            if soft == 0 or hard>100:
+                soft = 100
+            if hard == 0 or hard>100:
+                hard = 100
+            if self.position.name == 'Junior':
+                return int((soft + hard*3)/4)
+            if self.position.name == 'Specialist':
+                return int((soft*4+hard*6)/10)
+            if self.position.name == 'Senior':
+                return int((soft+hard)/2)
+            if self.position.name == 'Manager':
+                return int((soft*6+hard*4)/10)
+            if self.position.name == 'TopManager':
+                return int((soft*3+hard)/4)
+            return 'Set employee position'    
                     
             
             

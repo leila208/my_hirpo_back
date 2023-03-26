@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from account.models import *
 from wizard.models import *
 from django.http import JsonResponse
 import pandas as pd
@@ -58,6 +59,7 @@ class ProjectDepartmentSerializer(serializers.ModelSerializer):
 
 class SimpleProjectDepartmentSerializer(serializers.ModelSerializer):
     compatencies = serializers.SerializerMethodField()
+    get_allSkills = serializers.SerializerMethodField()
     class Meta:
         model = ProjectDepartment
         fields = '__all__'
@@ -71,6 +73,9 @@ class SimpleProjectDepartmentSerializer(serializers.ModelSerializer):
                 competencies.append({'id':norm.id,'norm':norm.norm,'position':{'name':y.name,'id':y.id,'department':obj.id},'department':{'name':obj.name,'id':obj.id,'project':obj.project.id},'skill':{'name':norm.name,'id':norm.id,'department':norm.position.department.id}})
         print(competencies)
         return competencies
+    
+    def get_get_allSkills(self,obj):
+        return obj.get_allSkills()
 
 class SkillNormCreateSerializer(serializers.ModelSerializer):
     
@@ -106,7 +111,6 @@ class SkillNormUpdateSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     project = ProjectSerializer()
-    department = SimpleProjectDepartmentSerializer()
     position = DepartmentPositionSerializer()
     hard_goal = serializers.SerializerMethodField()
     soft_goal = serializers.SerializerMethodField()
