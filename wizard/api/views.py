@@ -55,8 +55,9 @@ class CreateProjectView(APIView):
         return Response({"message":"success","project":project_serializer.data.get('id')},status=201)
    
     #projectserializer.data.get('id') 55deki projectserializer.data['id'] idi check ele
-           
+        # partial = True arasdir   
 """{"companyleader": "111", "project_name": "ss", "industry": "IT", "employee_number": "22", "inputValues": {"Hr": "22"}}"""
+
 
 #wizardpositionedit
 class PositionUpdateView(APIView):
@@ -160,8 +161,9 @@ class OneTimeView(APIView):
             for item in data:
                 for position in positions:
                     if item['position']==position.name and item['department']==position.department.name:
-  
-                        skill = SkillSerializer(data={'name':item['skill'],'position':position.id,'norm':item['norm']})
+
+                        skill = SkillSerializer(data={'name':item['skill'],'position':position.id,'norm':item['norm'],'skilltype':item['skilltype']})
+                       
                         skill.is_valid(raise_exception=True)
                         skill.save()
                         number +=1
@@ -175,8 +177,6 @@ class DepartmentUpdateView(APIView):
         department_serializer = SimpleProjectDepartmentSerializer
         removed = request.data.get('removedDepartments')
         added = request.data.get('editedDepartments')
-        print(removed,'removed')
-        print(added,'added')
         for item in removed:
             dp = ProjectDepartment.objects.get(id=item.get('id'))
             if dp:

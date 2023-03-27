@@ -62,7 +62,7 @@ class ProjectDepartment(models.Model):
         for y in self.departmentpositions.all():
             
             for x in MainSkill.objects.filter(position=y):
-                Skills.append({"id":x.id,"name":x.name,'type':x.skilltype,"weight":x.weight})
+                Skills.append({"id":x.id,"name":x.name,'type':x.skilltype,"weight":x.weight,'position':x.position.id})
         return Skills
         
             
