@@ -114,6 +114,15 @@ class Go_back(APIView):
         project.delete()
         return Response({"message":"success"})
     
+class project_delete(APIView):
+   def delete(self, request):
+        data=request.data
+        user = User.objects.get(id=data.get("user_id"))
+        projects = Project.objects.filter(user=user)
+        for project in projects:
+            project.delete()
+        return Response({"message":"success"})
+    
 #excellden sqle
 class OneTimeVieww(APIView):
     def post(self,request):
