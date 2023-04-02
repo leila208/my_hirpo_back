@@ -6,20 +6,34 @@ import os
 import pandas as pd
 import openpyxl
 from wizard.models import *
+from rest_framework.permissions import IsAuthenticated
+
+
+
 
 #employee goal list
 class UserListView(generics.ListAPIView):
     queryset = Employee.objects.all()
     serializer_class = UserSerializer
+    
 
 class CreateProjectView(APIView):     
     def post(self,request,format=None):
-        project_serializer = ProjectSerializer(data=request.data)
-        object_data = request.data.get('inputValues')
+        for pr in request.user.project.all():
+            pr.delete()
+        object_data = request.data.pop('inputValues')
+        data=request.data
+        
+        data['companyLeader']=request.user.id
+        project_serializer = ProjectSerializer(data=data)
+        print(request.data,'-------------------------------')
         #datani listin icindeydi, object_data[0] seklinde yazilmisdi
         if project_serializer.is_valid(raise_exception=True):
-            project.companyLeader = request.user
+            
+            
             project = project_serializer.save()
+            print(request.user,'-------------222-----------------')
+            print(project,'------------------------------------')
 
             for item in list(object_data.keys()):
                 name=str(item)
@@ -64,7 +78,7 @@ class CreateProjectView(APIView):
 class PositionUpdateView(APIView):
     def put(self, request, *args, **kwargs):
         position_serializer = DepartmentPositionSerializer
-        
+        print(request.data,'----0-0-0-0-0-0-0-0-0-0-0data')
         data = request.data.get('selecteds')
         if data:
             for position_data in data:
@@ -102,9 +116,10 @@ class DepartmentPositionListView(generics.ListAPIView):
 
     def get_queryset(self):
         queryset = ProjectDepartment.objects.all()
-        data=self.kwargs['id']
-        if data:
-            project=Project.objects.get(id=data)
+        user=self.request.user.id
+        if user:
+            
+            project=Project.objects.get(companyLeader=user)
             return queryset.filter(project=project)
                         
 #wizardda go back ederken datanin silinmesi          
@@ -137,7 +152,7 @@ class OneTimeVieww(APIView):
         df.rename(columns={'Position level': 'position'}, inplace=True)
 
         data = df.to_dict(orient='records')
-        print(data)
+        print(data,'-lllllllllllllllllllllllllll')
         for x in data:     
             serializer =  HirponormsSerializer(data=x)
             serializer.is_valid(raise_exception=True)
@@ -159,12 +174,13 @@ class OneTimeView(APIView):
         df.rename(columns={'Position level': 'position'}, inplace=True)
 
         data = df.to_dict(orient='records')
-        
-        id = kwargs.get('id')
+
+        user = self.request.user.id
         
 
-        if id:
-            project=Project.objects.get(id=id)
+        if user:
+            project=Project.objects.get(companyLeader=user)
+            print(user,project)
         departments = ProjectDepartment.objects.filter(project=project)
         number = 0
         for x in departments:
@@ -177,6 +193,7 @@ class OneTimeView(APIView):
                        
                         skill.is_valid(raise_exception=True)
                         skill.save()
+                        
                         number +=1
         return Response({"success":number})
     
@@ -205,9 +222,9 @@ class ExcellUploadView(generics.ListAPIView):
 
     def get_queryset(self):
         queryset = ProjectDepartment.objects.all()
-        data=self.kwargs['id']
+        data=self.request.user.id
         if data:
-            project=Project.objects.get(id=data)
+            project=Project.objects.get(companyLeader=data)
             return queryset.filter(project=project)
         
 class WizardComptencySaveView(APIView):
@@ -257,3 +274,18 @@ class WeightUpdateView(APIView):
     "position": 73,
     "skill": 1
     }"""        
+    
+    
+from django.contrib.auth.views import LogoutView
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+class LogoutAPIView(APIView):
+    def post(self, request):
+
+        # Call Django's LogoutView to log the user out
+        logout_view = LogoutView.as_view()
+        response = logout_view(request)
+        
+        # Return a success response
+        return Response({'message': 'Logged out successfully'})
