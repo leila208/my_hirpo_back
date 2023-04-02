@@ -9,7 +9,7 @@ class Activationcode(models.Model):
     activation_code = models.CharField(max_length=40,null=True,blank=True)
     
 
-# # Create your models here.
+
 
 # class MyUserManager(BaseUserManager):
 #     def create_user(self,email,password=None,is_active=True,is_staff=False,is_superuser=False):

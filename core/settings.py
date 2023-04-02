@@ -48,11 +48,14 @@ INSTALLED_APPS = [
     "rest_framework",
     'django_filters',
     "corsheaders",
-    "pandas"
+    "pandas",
+    'rest_framework_simplejwt',
+    
 ]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ]
@@ -171,8 +174,8 @@ from datetime import timedelta
 
 # jwt permission
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=365),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=365),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=3),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "ALGORITHM": "HS256",

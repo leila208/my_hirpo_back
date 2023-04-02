@@ -18,6 +18,7 @@ class CreateProjectView(APIView):
         object_data = request.data.get('inputValues')
         #datani listin icindeydi, object_data[0] seklinde yazilmisdi
         if project_serializer.is_valid(raise_exception=True):
+            project.companyLeader = request.user
             project = project_serializer.save()
 
             for item in list(object_data.keys()):
@@ -107,7 +108,7 @@ class DepartmentPositionListView(generics.ListAPIView):
             return queryset.filter(project=project)
                         
 #wizardda go back ederken datanin silinmesi          
-class Go_back(APIView):
+class go_back(APIView):
    def delete(self, request):
         data=request.data
         project = Project.objects.get(id=data.get("project"))
@@ -118,7 +119,8 @@ class project_delete(APIView):
    def delete(self, request):
         data=request.data
         user = User.objects.get(id=data.get("user_id"))
-        projects = Project.objects.filter(user=user)
+        employee = Employee.objects.get(user=user)
+        projects = employee.project_set.all()
         for project in projects:
             project.delete()
         return Response({"message":"success"})
