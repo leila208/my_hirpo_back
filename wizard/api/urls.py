@@ -8,7 +8,7 @@ urlpatterns = [
     path("start", CreateProjectView.as_view(), name="start"),
     path("positionupdate", PositionUpdateView.as_view(), name="positionupdate"),
     path("depposition/", DepartmentPositionListView.as_view(), name="depposition"),
-    path("compatencies/<id>", SkillNormListView.as_view(), name="competencies"),
+
     path("goback", go_back.as_view(), name="go_back"),
     path('upload/', ExcellUploadView.as_view(), name='upload_excel'),
     path('download', OneTimeView.as_view(), name='download_excel'),
