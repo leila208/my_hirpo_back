@@ -123,6 +123,18 @@ class DepartmentPositionListView(generics.ListAPIView):
             return queryset.filter(project=project)
         else:
             return Response({"error": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
+        
+class DepartmentForOrganizitialChart(generics.ListAPIView):
+    serializer_class = DepartmentSerializerForOrganizitialChart
+    
+    def get_queryset(self):
+        queryset = ProjectDepartment.objects.all()
+        user=self.request.user
+        if user.is_authenticated:
+            project=Project.objects.get(companyLeader=user.id)
+            return queryset.filter(project=project)
+        else:
+            return Response({"error": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
                         
 #wizardda go back ederken datanin silinmesi          
 class go_back(APIView):

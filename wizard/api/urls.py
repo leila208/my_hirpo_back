@@ -17,5 +17,6 @@ urlpatterns = [
     path("weightUpdateView", WeightUpdateView.as_view(), name="WeightUpdateView"),
     path("project_delete", project_delete.as_view(), name="project_delete"),
     path('logout', LogoutAPIView.as_view(), name='logout'),
+    path('DpForChart/', DepartmentForOrganizitialChart.as_view(), name='DepartmentForOrganizitialChart'),
 
 ]

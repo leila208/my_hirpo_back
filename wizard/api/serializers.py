@@ -35,6 +35,11 @@ class ProjectDepartmentForCompSerializer(serializers.ModelSerializer):
         model = ProjectDepartment
         fields = '__all__'
         
+class DepartmentSerializerForOrganizitialChart(serializers.ModelSerializer):
+    class Meta:
+        model=ProjectDepartment
+        fields = ('name','employee_number','id')        
+
 class ProjectDepartmentUpdateSerializer(serializers.ModelSerializer):
     
     class Meta:
