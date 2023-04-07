@@ -207,11 +207,14 @@ class DepartmentUpdateView(APIView):
         department_serializer = SimpleProjectDepartmentSerializer
         removed = request.data.get('removedDepartments')
         added = request.data.get('editedDepartments')
+        user=request.user
+        project=Project.objects.get(companyLeader=user)
         for item in removed:
             dp = ProjectDepartment.objects.get(id=item.get('id'))
             if dp:
                 dp.delete()
         for item in added:
+            item["project"]=project.id
             serializer = department_serializer(data=item)
             serializer.is_valid(raise_exception=True)
             serializer.save()
