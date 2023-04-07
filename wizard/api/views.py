@@ -13,8 +13,6 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 
-
-
 #employee goal list
 class UserListView(generics.ListAPIView):
     queryset = Employee.objects.all()
@@ -59,7 +57,7 @@ class CreateProjectView(APIView):
                 elif employee_number>10:
                     data = [{'name':'Junior-Assistant'},{'name':'Specialist'},{'name':'Senior specialist'},{'name':'Manager'},{'name':'Top manager'}]  
                 else:
-                    return Response("message":"Daxil etdiyiniz isci sayi uygun deyil")
+                    return Response({"message":"Daxil etdiyiniz isci sayi uygun deyil"})
                 
                 for x in data:
                     position = DepartmentPositionSerializer(data=x)  
