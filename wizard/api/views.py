@@ -111,16 +111,18 @@ class SkillNormListView(generics.ListAPIView):
             return queryset.filter(project=project)
 
 #bir evvelki viewla eynidi check ele           
+from rest_framework import status
 class DepartmentPositionListView(generics.ListAPIView):
     serializer_class = ProjectDepartmentSerializer
 
     def get_queryset(self):
         queryset = ProjectDepartment.objects.all()
-        user=self.request.user.id
-        if user:
-            
-            project=Project.objects.get(companyLeader=user)
+        user=self.request.user
+        if user.is_authenticated:
+            project=Project.objects.get(companyLeader=user.id)
             return queryset.filter(project=project)
+        else:
+            return Response({"error": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
                         
 #wizardda go back ederken datanin silinmesi          
 class go_back(APIView):
