@@ -28,7 +28,7 @@ class DepartmentPositionSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = DepartmentPosition
-        fields = '__all__'
+        fields = ('name','department','id')
         
 class ProjectDepartmentForCompSerializer(serializers.ModelSerializer):
     class Meta:
@@ -44,7 +44,7 @@ class ProjectDepartmentUpdateSerializer(serializers.ModelSerializer):
     
     class Meta:
         model=ProjectDepartment
-        fields = ('name','employee_number')
+        fields = ('name','employee_number','project','id')
 
 #for comptencies
 class ProjectDepartmentSerializer(serializers.ModelSerializer):

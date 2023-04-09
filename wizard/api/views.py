@@ -35,11 +35,11 @@ class CreateProjectView(APIView):
             for item in list(object_data.keys()):
                 name=str(item)
                 value=str(object_data[item])
-                last_data={"name":name,"employee_number":value}
+                last_data={"name":name,"employee_number":value,'project':project.id}
                 department_serializer = ProjectDepartmentUpdateSerializer(data=last_data)
-
+            
                 if department_serializer.is_valid(raise_exception=True):
-                    department = department_serializer.save(project=project)
+                    department = department_serializer.save()
 
                 if department.employee_number:
                     employee_number = department.employee_number
@@ -56,13 +56,16 @@ class CreateProjectView(APIView):
                     data = [{'name':'Junior-Assistant'},{'name':'Specialist'},{'name':'Senior specialist'},{'name':'Manager'}]   
                 elif employee_number>10:
                     data = [{'name':'Junior-Assistant'},{'name':'Specialist'},{'name':'Senior specialist'},{'name':'Manager'},{'name':'Top manager'}]  
-                else:
-                    return Response({"message":"Daxil etdiyiniz isci sayi uygun deyil"})
+                    
                 
                 for x in data:
-                    position = DepartmentPositionSerializer(data=x)  
-                    if position.is_valid(raise_exception=True):
-                        position.save(department=department)
+           
+                    x['department']=department.id
+                    position = DepartmentPositionSerializer(data=x) 
+                    
+                    position.is_valid(raise_exception=True)
+                        
+                    position.save()
                         
         return Response({"message":"success","project":project_serializer.data.get('id')},status=201)
    
@@ -74,9 +77,10 @@ class CreateProjectView(APIView):
 class PositionUpdateView(APIView):
     def put(self, request, *args, **kwargs):
         position_serializer = DepartmentPositionSerializer
+        print(request.data)
         data = request.data.get('selecteds')
         data2 = request.data.get('objects2')
-        
+        print(data,data2,request.data)
         if data:
             for position_data in data:
                 serializer = position_serializer(data=position_data)
@@ -98,9 +102,10 @@ class DepartmentPositionListView(generics.ListAPIView):
     def get_queryset(self):
         queryset = ProjectDepartment.objects.all()
         user=self.request.user
-        
+        print('-----------------------------------------------')
         if user.is_authenticated:
             project=Project.objects.get(companyLeader=user.id)
+            
             return queryset.filter(project=project)
         
         else:

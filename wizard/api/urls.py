@@ -5,10 +5,10 @@ app_name = "wizard-api"
 
 urlpatterns = [
     path("employees/", UserListView.as_view(), name="employees"),
+    
     path("start", CreateProjectView.as_view(), name="start"),
     path("positionupdate", PositionUpdateView.as_view(), name="positionupdate"),
     path("depposition/", DepartmentPositionListView.as_view(), name="depposition"),
-
     path("goback", go_back.as_view(), name="go_back"),
     path('upload/', ExcellUploadView.as_view(), name='upload_excel'),
     path('download', OneTimeView.as_view(), name='download_excel'),

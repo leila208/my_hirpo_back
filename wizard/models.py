@@ -1,6 +1,7 @@
 from django.db import models
 from account.utils import create_slug_shortcode
 from django.contrib.auth import get_user, get_user_model
+from django.db.models import Q
 
 User = get_user_model()
 
@@ -39,8 +40,30 @@ class Project(models.Model):
     
     class Meta:
         verbose_name = 'Company'
-        verbose_name_plural = 'Companies'        
+        verbose_name_plural = 'Companies'
+    
+    
+class Period(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    period_number= models.PositiveSmallIntegerField()
+    start_date = models.DateField()
+    end_date = models.DateField()
+    period_position = models.CharField(max_length=150,null=True,blank=True)
+    
+    def __str__(self):
+        return self.project + self.period_number
+    
+    class Meta:
+        verbose_name = 'Period'
+        verbose_name_plural = 'Periods'
 
+
+class Evaluation_frequency(models.Model):
+    period = models.ForeignKey(Period, on_delete=models.CASCADE)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    
+    
 
         
 class ProjectDepartment(models.Model):
@@ -65,8 +88,13 @@ class ProjectDepartment(models.Model):
                 Skills.append({"id":x.id,"name":x.name,'type':x.skilltype,"weight":x.weight,'position':x.position.id})
         return Skills
         
-            
-    
+    # def get_compatencies(self,obj):
+    #     competencies = []
+    #     for y in obj.departmentpositions.all():           
+    #         for norm in MainSkill.objects.filter(position=y,position__department__id=obj.id):
+    #             competencies.append({'id':norm.id,'weight':norm.weight,'norm':norm.norm,'position':{'name':y.name,'id':y.id,'department':obj.id},'department':{'name':obj.name,'id':obj.id,'project':obj.project.id},'skill':{'name':norm.name,'id':norm.id,'department':norm.position.department.id}})
+    #     return competencies
+          
     def get_compatencies(self):
         comptencies = []
         position = DepartmentPosition.objects.filter(department=self)
@@ -80,7 +108,7 @@ class DepartmentPosition(models.Model):
     name = models.CharField(max_length=20,verbose_name='Position adi')    
     description = models.TextField(verbose_name='Position haqqinda',null=True,blank=True)
     department = models.ForeignKey(ProjectDepartment,on_delete=models.CASCADE,null=True,blank=True,related_name='departmentpositions')
-    
+    report_to = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, limit_choices_to=Q(department=department))
     
     def __str__(self):
         return f"{self.name} - {self.department.name} - {self.department.project.project_name}"
@@ -106,15 +134,6 @@ class MainSkill(models.Model):
         verbose_name_plural = 'Main Skills'
         
         
-
-
-
-    
-    # class Meta:
-    #     verbose_name = 'Comptency norm'
-    #     verbose_name_plural = 'Comptency norms'
-    #     ordering = ['position__department__name', 'position__name', 'skill__name']
-        
         
     # def save(self, *args, **kwargs):
     #     oldobject = SkillNorm.objects.filter(position__name=self.position.name,skill__name=self.skill.name,position__department=self.position.department)
@@ -131,11 +150,12 @@ class Employee(models.Model):
     project = models.ForeignKey(Project,on_delete=models.CASCADE,related_name='employee',null=True,blank=True)
     first_name = models.CharField(max_length=20,verbose_name='User adi',null=True,blank=True)
     last_name = models.CharField(max_length=20,verbose_name='User soyadi',null=True,blank=True)
-    position = models.ForeignKey(DepartmentPosition,related_name='user',on_delete=models.CASCADE,verbose_name='User position',null=True,blank=True)
+    position = models.ForeignKey(DepartmentPosition,related_name='user',on_delete=models.CASCADE,verbose_name='position level',null=True,blank=True)
     salary = models.PositiveIntegerField(null=True,blank=True)
     hire_date = models.DateField(null=True,blank=True,auto_now_add=True)
     is_systemadmin = models.BooleanField(default=False,null=True,blank=True)
-    weight = models.IntegerField(null=True,blank=True)
+    positionName = models.CharField(max_length=40,null=True,blank=True)
+    
     
     def __str__(self):
         return f'{self.user}-'
@@ -158,6 +178,7 @@ class Employee(models.Model):
         else:
             hard_goal_skill['average'] = 0   
         return hard_goal_skill
+    
     
     def get_soft_goal(self):
         soft_goal_skill = {}
@@ -195,9 +216,11 @@ class Employee(models.Model):
             
             
 class UserSkill(models.Model):
-    Employee = models.ForeignKey(Employee, on_delete=models.CASCADE,related_name='skills')
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE,related_name='skills')
     skill = models.ForeignKey(MainSkill, on_delete=models.CASCADE,related_name='userskill')
+    evaluation_frequency = models.ForeignKey(Evaluation_frequency,on_delete=models.CASCADE,related_name='freq')
     price = models.PositiveIntegerField()
+    
     
     def __str__(self):
         return f'{self.user}-{self.price}'
