@@ -20,7 +20,7 @@ urlpatterns = [
     path('DpForChart/', DepartmentForOrganizitialChart.as_view(), name='DepartmentForOrganizitialChart'),
     path('EmployeeSingle/<id>', EmployeeSingleView.as_view(), name='EmployeeSingleView'),
     path('EmployeeListView/', EmployeeListView.as_view(), name='EmployeeListView'),
-    path('WizardComptencySaveView/', WizardComptencySaveView.as_view(), name='WizardComptencySaveView'),
+    path('AddUser/', AddUser.as_view(), name='AddUser'),
     
     
 

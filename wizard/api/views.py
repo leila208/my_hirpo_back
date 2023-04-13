@@ -295,12 +295,13 @@ class LogoutAPIView(APIView):
         return Response({'message': 'Logged out successfully'})
 
        
-class WizardComptencySaveView(APIView):
+class AddUser(APIView):
     
     def post(self,request):
-        data = request.data
-        project = request.user.project.id
-        for emp in request.data:
+        emp = request.data
+        project = request.user.project
+        print(project)
+        if project:
             data = {
             'username':emp.get('username'),
             'password':emp.get('password'),
@@ -322,10 +323,35 @@ class WizardComptencySaveView(APIView):
             }
             
 class EmployeeListView(generics.ListAPIView):
-    queryset = Employee.objects.all()
+    
     serializer_class = EmployeeForListSerializer
+    
+    def get_queryset(self):
+        queryset = Employee.objects.all()
+        data=self.request.user.id
+        
+        if data:
+            project=Project.objects.get(companyLeader=data)
+            return queryset.filter(project=project)
     
 class EmployeeSingleView(generics.RetrieveAPIView):
     queryset = Employee.objects.all()
     serializer_class = EmployeeForListSerializer
     lookup_field = 'id'
+    
+class PositionSelect(generics.ListAPIView):
+    serializer_class = DepartmentPositionSerializer
+    
+    def get_queryset(self):
+        queryset = ProjectDepartment.objects.all()
+        data=self.request.user.id
+        
+        if data:
+            mydata = []
+            project=Project.objects.get(companyLeader=data)
+            departments = ProjectDepartment.objects.filter(project=project)
+            for dep in departments:
+                mydata.append(queryset.filter(department=dep))
+            return mydata
+            
+    
