@@ -21,6 +21,7 @@ urlpatterns = [
     path('EmployeeSingle/<id>', EmployeeSingleView.as_view(), name='EmployeeSingleView'),
     path('EmployeeListView/', EmployeeListView.as_view(), name='EmployeeListView'),
     path('AddUser/', AddUser.as_view(), name='AddUser'),
+    path('PositionSelect/', PositionSelect.as_view(), name='PositionSelect'),
     
     
 

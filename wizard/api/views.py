@@ -329,10 +329,7 @@ class EmployeeListView(generics.ListAPIView):
     def get_queryset(self):
         queryset = Employee.objects.all()
         data=self.request.user.id
-        
-        if data:
-            project=Project.objects.get(companyLeader=data)
-            return queryset.filter(project=project)
+        return queryset.filter(project__companyLeader=data)
     
 class EmployeeSingleView(generics.RetrieveAPIView):
     queryset = Employee.objects.all()
@@ -343,15 +340,8 @@ class PositionSelect(generics.ListAPIView):
     serializer_class = DepartmentPositionSerializer
     
     def get_queryset(self):
-        queryset = ProjectDepartment.objects.all()
-        data=self.request.user.id
-        
-        if data:
-            mydata = []
-            project=Project.objects.get(companyLeader=data)
-            departments = ProjectDepartment.objects.filter(project=project)
-            for dep in departments:
-                mydata.append(queryset.filter(department=dep))
-            return mydata
+        user=self.request.user.id
+        queryset = DepartmentPosition.objects.filter(department__project__companyLeader_id = user)
+        return queryset
             
     
