@@ -137,5 +137,30 @@ class UserSerializer(serializers.ModelSerializer):
     def get_goal(self,obj):
         return obj.get_goal()
     
+class UserForEmployeeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username','password','email')
 
+class EmployeeForUserpageSerializer(serializers.ModelSerializer):
+    user = UserForEmployeeSerializer()
+    
+    class Meta:
+        model = Employee
+        fields = '__all__'
+        
+class EmployeeForListSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Employee
+        fields = ('first_name','last_name','position')
+        
+class EmployeeForCreateSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Employee
+        fields = '__all__'
+        
 
+        
+        

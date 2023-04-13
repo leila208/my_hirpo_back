@@ -64,8 +64,6 @@ class Evaluation_frequency(models.Model):
     end_date = models.DateField()
     
     
-
-        
 class ProjectDepartment(models.Model):
     project = models.ForeignKey(Project,on_delete=models.CASCADE,null=True,blank=True,related_name='departments')
     name = models.CharField(max_length=255,verbose_name='Department adi')
@@ -155,7 +153,8 @@ class Employee(models.Model):
     hire_date = models.DateField(null=True,blank=True,auto_now_add=True)
     is_systemadmin = models.BooleanField(default=False,null=True,blank=True)
     positionName = models.CharField(max_length=40,null=True,blank=True)
-    
+    phone = models.PositiveIntegerField(null=True,blank=True)
+    report_to = models.ForeignKey('self',on_delete=models.CASCADE,null=True,blank=True)
     
     def __str__(self):
         return f'{self.user}-'
@@ -226,7 +225,7 @@ class UserSkill(models.Model):
         return f'{self.user}-{self.price}'
     
     def save(self, *args, **kwargs):
-        oldobject = UserSkill.objects.filter(user=self.user,skill=self.skill)
+        oldobject = UserSkill.objects.filter(user=self.user,skill=self.skill,evaluation_frequency=self.evaluation_frequency)
         if oldobject.exists():
             print(oldobject)
             

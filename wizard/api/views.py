@@ -293,3 +293,39 @@ class LogoutAPIView(APIView):
         response = logout_view(request)
 
         return Response({'message': 'Logged out successfully'})
+
+       
+class WizardComptencySaveView(APIView):
+    
+    def post(self,request):
+        data = request.data
+        project = request.user.project.id
+        for emp in request.data:
+            data = {
+            'username':emp.get('username'),
+            'password':emp.get('password'),
+            'email':emp.get('email')
+            }
+            serializer = UserForEmployeeSerializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            user = serializer.save()
+            
+            empdata = {
+                'project':project,
+                'user':user.id,
+                'position':emp.get('position'),
+                'first_name':emp.get('first_name'),
+                'last_name':emp.get('last_name'),
+                'phone':emp.get('phone'),
+                'report_to':emp.get('reportTo'),
+                'positionName':emp.get('positionName')
+            }
+            
+class EmployeeListView(generics.ListAPIView):
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeForListSerializer
+    
+class EmployeeSingleView(generics.RetrieveAPIView):
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeForListSerializer
+    lookup_field = 'id'

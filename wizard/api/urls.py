@@ -18,5 +18,10 @@ urlpatterns = [
     path("project_delete", project_delete.as_view(), name="project_delete"),
     path('logout', LogoutAPIView.as_view(), name='logout'),
     path('DpForChart/', DepartmentForOrganizitialChart.as_view(), name='DepartmentForOrganizitialChart'),
+    path('EmployeeSingle/<id>', EmployeeSingleView.as_view(), name='EmployeeSingleView'),
+    path('EmployeeListView/', EmployeeListView.as_view(), name='EmployeeListView'),
+    path('WizardComptencySaveView/', WizardComptencySaveView.as_view(), name='WizardComptencySaveView'),
+    
+    
 
 ]
