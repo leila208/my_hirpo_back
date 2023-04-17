@@ -140,20 +140,35 @@ class UserSerializer(serializers.ModelSerializer):
 class UserForEmployeeSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('username','password','email')
+        fields = ('username','password','email','id')
+
+class NameOfEmployeeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Employee
+        fields = ('id','first_name','last_name')
 
 class EmployeeForUserpageSerializer(serializers.ModelSerializer):
     user = UserForEmployeeSerializer()
-    
+
     class Meta:
         model = Employee
         fields = '__all__'
         
 class EmployeeForListSerializer(serializers.ModelSerializer):
-    
+    position = DepartmentPositionSerializer()
     class Meta:
         model = Employee
-        fields = ('first_name','last_name','position')
+        fields = ('first_name','last_name','position','id')
+        
+
+class EmployeeForUserListPageSerializer(serializers.ModelSerializer):
+    position = DepartmentPositionSerializer()
+    user = UserForEmployeeSerializer()
+    report_to = NameOfEmployeeSerializer()
+    class Meta:
+        model = Employee
+        fields = '__all__'
         
 class EmployeeForCreateSerializer(serializers.ModelSerializer):
     
@@ -163,4 +178,8 @@ class EmployeeForCreateSerializer(serializers.ModelSerializer):
         
 
         
-        
+    
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username','email','first_name','last_name','id')

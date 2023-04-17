@@ -299,8 +299,9 @@ class AddUser(APIView):
     
     def post(self,request):
         emp = request.data
-        project = request.user.project
-        print(project)
+        project = Project.objects.get(companyLeader=request.user.id)
+
+        print(emp,'22222222222222222222222222222',request.user.id)
         if project:
             data = {
             'username':emp.get('username'),
@@ -312,15 +313,20 @@ class AddUser(APIView):
             user = serializer.save()
             
             empdata = {
-                'project':project,
+                'project':project.id,
                 'user':user.id,
                 'position':emp.get('position'),
-                'first_name':emp.get('first_name'),
-                'last_name':emp.get('last_name'),
+                'first_name':emp.get('firstName'),
+                'last_name':emp.get('lastName'),
                 'phone':emp.get('phone'),
                 'report_to':emp.get('reportTo'),
                 'positionName':emp.get('positionName')
             }
+            print(empdata)
+            employeeSerializer = EmployeeForCreateSerializer(data= empdata)
+            employeeSerializer.is_valid(raise_exception=True)
+            employeeSerializer.save()
+            return Response({"message":"success"})
             
 class EmployeeListView(generics.ListAPIView):
     
@@ -333,7 +339,7 @@ class EmployeeListView(generics.ListAPIView):
     
 class EmployeeSingleView(generics.RetrieveAPIView):
     queryset = Employee.objects.all()
-    serializer_class = EmployeeForListSerializer
+    serializer_class = EmployeeForUserListPageSerializer
     lookup_field = 'id'
     
 class PositionSelect(generics.ListAPIView):
@@ -344,4 +350,31 @@ class PositionSelect(generics.ListAPIView):
         queryset = DepartmentPosition.objects.filter(department__project__companyLeader_id = user)
         return queryset
             
-    
+
+        employeeSerializer.save()
+        return Response({"Status": "success", "data": user_serializer.data}, status=200)
+
+
+class UserChange(generics.UpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    lookup_field = "id"
+
+    def put(self, request, *args, **kwargs):
+        data = request.data
+        
+        
+        obj=self.get_object()
+        
+        serializer = self.serializer_class(data=data,instance=obj,partial=True)
+        if data.get('email') == "":
+            del data['email'] 
+        if data.get('username') == "":
+            del data['username']
+        if serializer.is_valid():
+            
+            user = serializer.save()
+        else:
+            print(serializer.errors
+                  )
+        return Response({"Status": "success"}, status=201)

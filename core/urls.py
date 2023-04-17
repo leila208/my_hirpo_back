@@ -24,6 +24,7 @@ urlpatterns = [
     #api urls
     path("account/", include("account.api.urls")),
     path("wizard/", include("wizard.api.urls")),
+    path("eva/", include("evaluate.urls")),
 ]
 
 
