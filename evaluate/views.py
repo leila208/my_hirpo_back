@@ -19,9 +19,7 @@ class ProjectsApiView(generics.ListAPIView):
     
     
     def get_queryset(self):
-
         data=self.request.user.id
-        
         if data:
             project=Project.objects.filter(companyLeader=data)
             return project
@@ -38,10 +36,24 @@ class Frequencies(generics.ListAPIView):
         if data:
             project=Project.objects.get(companyLeader=data)
             return queryset.filter(period__project_id = project.id)
+        
 class AddPeriodApiView(generics.CreateAPIView):
     queryset = Period.objects.all()
     serializer_class = PeriodSerializer
     
-class AddFrequencyApiView(generics.CreateAPIView):
+class AddFrequencyApiView(generics.Api):
     queryset = Evaluation_frequency.objects.all()
     serializer_class = Evaluation_frequency
+    
+class EmployeeListForScores(generics.ListAPIView):
+    serializer_class = employeeSerializer
+    
+    def get_queryset(self):
+        id = self.kwargs.get('id')
+        queryset = Employee.objects.all()
+        data=self.request.user.id
+        
+        if data:
+            project=Project.objects.get(companyLeader=data,id=id)
+            return queryset.filter(project=project.id)
+        

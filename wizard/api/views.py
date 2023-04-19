@@ -102,7 +102,6 @@ class DepartmentPositionListView(generics.ListAPIView):
     def get_queryset(self):
         queryset = ProjectDepartment.objects.all()
         user=self.request.user
-        print('-----------------------------------------------')
         if user.is_authenticated:
             project=Project.objects.get(companyLeader=user.id)
             
@@ -351,8 +350,8 @@ class PositionSelect(generics.ListAPIView):
         return queryset
             
 
-        employeeSerializer.save()
-        return Response({"Status": "success", "data": user_serializer.data}, status=200)
+        # employeeSerializer.save()
+        # return Response({"Status": "success", "data": user_serializer.data}, status=200)
 
 
 class UserChange(generics.UpdateAPIView):

@@ -85,6 +85,8 @@ class ProjectDepartment(models.Model):
             for x in MainSkill.objects.filter(position=y):
                 Skills.append({"id":x.id,"name":x.name,'type':x.skilltype,"weight":x.weight,'position':x.position.id})
         return Skills
+    
+    
         
     # def get_compatencies(self,obj):
     #     competencies = []
@@ -106,7 +108,6 @@ class DepartmentPosition(models.Model):
     name = models.CharField(max_length=20,verbose_name='Position adi')    
     description = models.TextField(verbose_name='Position haqqinda',null=True,blank=True)
     department = models.ForeignKey(ProjectDepartment,on_delete=models.CASCADE,null=True,blank=True,related_name='departmentpositions')
-    
     report_to = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True)
     
     def __str__(self):
@@ -115,6 +116,9 @@ class DepartmentPosition(models.Model):
     class Meta:
         verbose_name = 'Position'
         verbose_name_plural = 'Positions'
+        
+        
+    
         
 
 class MainSkill(models.Model):
@@ -164,66 +168,110 @@ class Employee(models.Model):
         ordering = ['-position']
         verbose_name = 'Employee'
         verbose_name_plural = 'Employees'
-        
-    def get_hard_goal(self):
-        hard_goal_skill = {}
-        for x in MainSkill.objects.all():
-            if UserSkill.objects.filter(skill=x):
-
-                goal = UserSkill.objects.get(skill=x).price/MainSkill.objects.get(skill=x,position=self.position).norm
-                if x.skilltype == 'Hard':
-                    hard_goal_skill[x.name] = int(goal*100)
-        if len(hard_goal_skill)>0:        
-            hard_goal_skill['average'] = sum(hard_goal_skill.values())/len(hard_goal_skill.values())  
-        else:
-            hard_goal_skill['average'] = 0   
-        return hard_goal_skill
     
+    def get_compatencies(self):
+        comptencies = []
+        for c in MainSkill.objects.filter(position=self.position):
+            comptencies.append({'weight':c.weight,"skilltype":c.skilltype,'norm':c.norm,"id":c.id,'skill':{"name":c.name,"id":c.id}})
+        return comptencies
     
-    def get_soft_goal(self):
-        soft_goal_skill = {}
-        for x in MainSkill.objects.all():
-            if UserSkill.objects.filter(skill=x):
-
-                goal = UserSkill.objects.get(skill=x).price/MainSkill.objects.get(skill=x,position=self.position).norm
-                if x.skilltype == 'Soft':
-                    soft_goal_skill[x.name] = int(goal*100)
-        if len(soft_goal_skill)>0:        
-            soft_goal_skill['average'] = sum(soft_goal_skill.values())/len(soft_goal_skill.values())
-        else:
-            soft_goal_skill['average'] = 0
-        return soft_goal_skill
-    
-    def get_goal(self):    
-        soft,hard = self.get_soft_goal()['average'],self.get_hard_goal()['average']
-        if self.position:
-            if soft == 0 or hard>100:
-                soft = 100
-            if hard == 0 or hard>100:
-                hard = 100
-            if self.position.name == 'Junior':
-                return int((soft + hard*3)/4)
-            if self.position.name == 'Specialist':
-                return int((soft*4+hard*6)/10)
-            if self.position.name == 'Senior':
-                return int((soft+hard)/2)
-            if self.position.name == 'Manager':
-                return int((soft*6+hard*4)/10)
-            if self.position.name == 'TopManager':
-                return int((soft*3+hard)/4)
-            return 'Set employee position'    
-                    
+    def get_total_score(self):
+        cowerker,selfscore,sub,manager = [],[],[],[]
+        for x in self.skills.all():
+            if x.employee.report_to == x.rater.report_to:
+                cowerker.append(x.skill.weight*(x.price/x.norm))
+            elif x.employee.report_to == x.rater:
+                manager.append(x.skill.weight*(x.price/x.norm))
+            elif x.employee == x.rater.report_to:
+                sub.append(x.skill.weight*(x.price/x.norm))
+            elif x.employee == x.rater:
+                selfscore.append(x.skill.weight*(x.price/x.norm))
+            else:
+                pass
             
+        result = {}
+        result['cowerker'] = sum(cowerker)/len(cowerker)
+        result['selfscore'] = sum(selfscore)/len(selfscore)
+        result['sub'] = sum(sub)/len(sub)
+        result['manager'] = sum(manager)/len(manager)
+        result['total'] = result['cowerker']*0.3+result['selfscore']*0.1+result['sub']*0.2+result['manager']*0.4
+        return result
+    
+    # def get_hard_goal(self):
+    #     hard_goal_skill = {}
+    #     for x in MainSkill.objects.all():
+    #         if UserSkill.objects.filter(skill=x):
+
+    #             goal = UserSkill.objects.get(skill=x).price/MainSkill.objects.get(skill=x,position=self.position).norm
+    #             if x.skilltype == 'Hard':
+    #                 hard_goal_skill[x.name] = int(goal*100)
+    #     if len(hard_goal_skill)>0:        
+    #         hard_goal_skill['average'] = sum(hard_goal_skill.values())/len(hard_goal_skill.values())  
+    #     else:
+    #         hard_goal_skill['average'] = 0   
+    #     return hard_goal_skill
+    
+    
+    # def get_soft_goal(self):
+    #     soft_goal_skill = {}
+    #     for x in MainSkill.objects.all():
+    #         if UserSkill.objects.filter(skill=x):
+
+    #             goal = UserSkill.objects.get(skill=x).price/MainSkill.objects.get(skill=x,position=self.position).norm
+    #             if x.skilltype == 'Soft':
+    #                 soft_goal_skill[x.name] = int(goal*100)
+    #     if len(soft_goal_skill)>0:        
+    #         soft_goal_skill['average'] = sum(soft_goal_skill.values())/len(soft_goal_skill.values())
+    #     else:
+    #         soft_goal_skill['average'] = 0
+    #     return soft_goal_skill
+    
+    # def get_goal(self):    
+    #     soft,hard = self.get_soft_goal()['average'],self.get_hard_goal()['average']
+    #     if self.position:
+    #         if soft == 0 or hard>100:
+    #             soft = 100
+    #         if hard == 0 or hard>100:
+    #             hard = 100
+    #         if self.position.name == 'Junior':
+    #             return int((soft + hard*3)/4)
+    #         if self.position.name == 'Specialist':
+    #             return int((soft*4+hard*6)/10)
+    #         if self.position.name == 'Senior':
+    #             return int((soft+hard)/2)
+    #         if self.position.name == 'Manager':
+    #             return int((soft*6+hard*4)/10)
+    #         if self.position.name == 'TopManager':
+    #             return int((soft*3+hard)/4)
+    #         return 'Set employee position'    
+                    
+class AllScores(models.Model):
+    employee = models.ForeignKey(Employee,on_delete=models.CASCADE,related_name='myscore')
+    rater = models.ForeignKey(Employee,on_delete=models.CASCADE,related_name='mycomment')
+    evaluation_frequency = models.ForeignKey(Evaluation_frequency,on_delete=models.CASCADE,related_name='freq')
+    is_visible = models.BooleanField(default=False)
             
 class UserSkill(models.Model):
-    employee = models.ForeignKey(Employee, on_delete=models.CASCADE,related_name='skills')
-    skill = models.ForeignKey(MainSkill, on_delete=models.CASCADE,related_name='userskill')
-    evaluation_frequency = models.ForeignKey(Evaluation_frequency,on_delete=models.CASCADE,related_name='freq')
+    card = models.ForeignKey(AllScores,on_delete=models.CASCADE)
+    skill = models.ForeignKey(MainSkill, on_delete=models.CASCADE)
+    comment = models.TextField(null=True,blank=True)
     price = models.PositiveIntegerField()
     
     
     def __str__(self):
         return f'{self.user}-{self.price}'
+    
+    def position_weight(self):
+        if self.employee.report_to == self.rater.report_to:
+            return {"rank":"cowerker","rankweight":30}
+        elif self.employee.report_to == self.rater:
+            return {"rank":"manager","rankweight":40}
+        elif self.employee == self.rater.report_to:
+            return {'rank':'sub',"rankweight":20}
+        elif self.employee == self.rater:
+            return {'rank':'selfscore',"rankweight":10}
+        else:
+            return {'rank':'undefined',"rankweight":0}
     
     def save(self, *args, **kwargs):
         oldobject = UserSkill.objects.filter(user=self.user,skill=self.skill,evaluation_frequency=self.evaluation_frequency)
