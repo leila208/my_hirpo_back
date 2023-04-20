@@ -49,13 +49,13 @@ class CreateProjectView(APIView):
                 if employee_number == 1:
                     data=[{"name":"Senior"}]
                 elif employee_number>1 and employee_number<4:
-                    data = [{'name':'Specialist'},{'name':'Senior specialist'}]
+                    data = [{'name':'Specialist'},{'name':'Senior Specialist'}]
                 elif employee_number>3 and employee_number<6:
-                    data = [{'name':'Junior-Assistant'},{'name':'Senior specialist'},{'name':'Manager'}]
+                    data = [{'name':'Junior'},{'name':'Senior Specialist'},{'name':'Manager'}]
                 elif employee_number>5 and employee_number<11:
-                    data = [{'name':'Junior-Assistant'},{'name':'Specialist'},{'name':'Senior specialist'},{'name':'Manager'}]   
+                    data = [{'name':'Junior'},{'name':'Specialist'},{'name':'Senior Specialist'},{'name':'Manager'}]   
                 elif employee_number>10:
-                    data = [{'name':'Junior-Assistant'},{'name':'Specialist'},{'name':'Senior specialist'},{'name':'Manager'},{'name':'Top manager'}]  
+                    data = [{'name':'Junior'},{'name':'Specialist'},{'name':'Senior Specialist'},{'name':'Manager'},{'name':'Top manager'}]  
                     
                 
                 for x in data:
@@ -188,6 +188,16 @@ class OneTimeView(APIView):
 
         departments = ProjectDepartment.objects.filter(project=project)
         number = 0
+
+        for y in data:
+            if y['position'] == 'Top management':
+                y['position'] = 'Top manager'
+
+            elif y['position'] == 'Senior specialist':
+                y['position'] = 'Senior Specialist'
+
+            elif y['position'] == 'Junior-Assistant':
+                y['position'] = 'Junior'
         
         for x in departments:
             positions = DepartmentPosition.objects.filter(department=x.id)
@@ -198,7 +208,38 @@ class OneTimeView(APIView):
                         skill.is_valid(raise_exception=True)
                         skill.save()                       
                         number +=1
-                        
+        poswe = {}                
+        for x in MainSkill.objects.all():
+            if x.position.name+'-'+x.skilltype in poswe:
+                poswe[x.position.name+'-'+x.skilltype] = poswe[x.position.name+'-'+x.skilltype]+1
+            else:
+                poswe[x.position.name+'-'+x.skilltype] = 1
+                
+        for x in MainSkill.objects.all():
+            
+            if x.skilltype == 'Soft' and x.position.name == 'Junior':
+                x.weight = 25/poswe[x.position.name+'-'+x.skilltype]
+                print(poswe[x.position.name+'-'+x.skilltype])
+            elif x.skilltype == 'Hard' and x.position.name == 'Junior':
+                x.weight = 75/poswe[x.position.name+'-'+x.skilltype]
+            if x.skilltype == 'Soft' and x.position.name == 'Specialist':
+                x.weight = 40/poswe[x.position.name+'-'+x.skilltype]
+            elif x.skilltype == 'Hard' and x.position.name == 'Specialist':
+                x.weight = 60/poswe[x.position.name+'-'+x.skilltype]
+            if x.skilltype == 'Soft' and x.position.name == 'Senior Specialist':
+                x.weight = 50/poswe[x.position.name+'-'+x.skilltype]
+            elif x.skilltype == 'Hard' and x.position.name == 'Senior Specialist':
+                x.weight = 50/poswe[x.position.name+'-'+x.skilltype]
+            if x.skilltype == 'Soft' and x.position.name == 'Manager':
+                x.weight = 40/poswe[x.position.name+'-'+x.skilltype]
+            elif x.skilltype == 'Hard' and x.position.name == 'Manager':
+                x.weight = 60/poswe[x.position.name+'-'+x.skilltype]
+            if x.skilltype == 'Soft' and x.position.name == 'Top Manager':
+                x.weight = 25/poswe[x.position.name+'-'+x.skilltype]
+            elif x.skilltype == 'Hard' and x.position.name == 'Top Manager':
+                x.weight = 75/poswe[x.position.name+'-'+x.skilltype]               
+            x.save()
+                
         return Response({"success":number})
     
     

@@ -26,24 +26,25 @@ class ProjectsApiView(generics.ListAPIView):
         
 class Frequencies(generics.ListAPIView):
     queryset = Evaluation_frequency.objects.all()
-    serializer_class = Evaluation_frequencySerializer
+    serializer_class = Evaluation_ffrequencySerializer
     
     
     def get_queryset(self):
         queryset = Evaluation_frequency.objects.all()
         data=self.request.user.id
-        
+
         if data:
             project=Project.objects.get(companyLeader=data)
             return queryset.filter(period__project_id = project.id)
         
 class AddPeriodApiView(generics.CreateAPIView):
     queryset = Period.objects.all()
-    serializer_class = PeriodSerializer
+    serializer_class = PerioddSerializer
     
-class AddFrequencyApiView(generics.Api):
+    
+class AddFrequencyApiView(generics.CreateAPIView):
     queryset = Evaluation_frequency.objects.all()
-    serializer_class = Evaluation_frequency
+    serializer_class = Evaluation_frequencySerializer
     
 class EmployeeListForScores(generics.ListAPIView):
     serializer_class = employeeSerializer

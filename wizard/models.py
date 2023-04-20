@@ -59,6 +59,7 @@ class Period(models.Model):
 
 
 class Evaluation_frequency(models.Model):
+    freq_number = models.SmallIntegerField(null=True,blank=True)
     period = models.ForeignKey(Period, on_delete=models.CASCADE,related_name='frequency')
     start_date = models.DateField()
     end_date = models.DateField()
@@ -116,6 +117,7 @@ class DepartmentPosition(models.Model):
     class Meta:
         verbose_name = 'Position'
         verbose_name_plural = 'Positions'
+        ordering = ['name']
         
         
     
@@ -127,7 +129,7 @@ class MainSkill(models.Model):
     description = models.TextField(null=True,blank=True)
     position = models.ForeignKey(DepartmentPosition, on_delete=models.CASCADE)
     norm = models.PositiveIntegerField(null=True,blank=True)
-    weight = models.IntegerField(null=True,blank=True)
+    weight = models.FloatField(null=True,blank=True)
     
     def __str__(self):
         return f'{self.name}-{self.position.name}' 

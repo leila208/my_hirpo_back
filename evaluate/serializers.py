@@ -3,24 +3,53 @@ from account.models import *
 from wizard.models import *
 from django.http import JsonResponse
 
+class PerioddSerializer(serializers.ModelSerializer):
 
+    class Meta:
+        model = Period
+        fields = '__all__'
+
+class Evaluation_ffrequencySerializer(serializers.ModelSerializer):
+    freq_number = serializers.IntegerField()
+    period = PerioddSerializer()
+    class Meta:
+        model = Evaluation_frequency
+        fields = '__all__'
+        
 class Evaluation_frequencySerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = Evaluation_frequency
         fields = '__all__'
 
-
 class PeriodSerializer(serializers.ModelSerializer):
     frequency = Evaluation_frequencySerializer(many=True)
+    position_count = serializers.SerializerMethodField()
     class Meta:
         model = Period
         fields = '__all__'
         
+    def get_position_count(self,obj):
+        count = 0
+        a = obj.project
+        for x in a.departments.all():
+            for y in x.departmentpositions.all():
+                count += 1
+        return count
+        
+    
+        
 class ProjectSerializerr(serializers.ModelSerializer):
+    
     period = PeriodSerializer(many=True)
     class Meta:
         model = Project
         fields = '__all__'
+    
+    
+    
+    
+            
         
 class SimpleProjectDepartmentSerializer(serializers.ModelSerializer):
     compatencies = serializers.SerializerMethodField()
