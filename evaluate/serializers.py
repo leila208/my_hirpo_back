@@ -43,7 +43,11 @@ class PeriodSerializer(serializers.ModelSerializer):
                 count += 1
         return count
         
-    
+class employeeeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Employee
+        fields = '__all__'
         
 class ProjectSerializerr(serializers.ModelSerializer):
     
@@ -53,7 +57,13 @@ class ProjectSerializerr(serializers.ModelSerializer):
         fields = '__all__'
     
 class AllScoresSerializer(serializers.ModelSerializer):
-
+    
+    class Meta:
+        model = AllScores
+        fields = '__all__'
+        
+class AllScoressSerializer(serializers.ModelSerializer):
+    employee = employeeeSerializer()
     class Meta:
         model = AllScores
         fields = '__all__'

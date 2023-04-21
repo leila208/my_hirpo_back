@@ -72,7 +72,7 @@ class AddFrequencyApiView(APIView):
         return Response({'message':'success'})
     
 class EvaluationList(generics.ListAPIView):
-    serializer_class = AllScoresSerializer
+    serializer_class = AllScoressSerializer
     
     def get_queryset(self,request):
         
