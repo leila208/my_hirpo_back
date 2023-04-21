@@ -252,6 +252,9 @@ class AllScores(models.Model):
     rater = models.ForeignKey(Employee,on_delete=models.CASCADE,related_name='mycomment')
     evaluation_frequency = models.ForeignKey(Evaluation_frequency,on_delete=models.CASCADE,related_name='freq')
     is_visible = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return f'{self.employee.first_name}-qiymetlendiren:{self.rater}'
 
 class UserSkill(models.Model):
     card = models.ForeignKey(AllScores,on_delete=models.CASCADE)
@@ -261,7 +264,7 @@ class UserSkill(models.Model):
     
     
     def __str__(self):
-        return f'{self.user}-{self.price}'
+        return f'{self.card.employee.first_name}-{self.card.employee.last_name}-{self.skill.name}-{self.price}'
     
     def position_weight(self):
         if self.employee.report_to == self.rater.report_to:
@@ -275,12 +278,12 @@ class UserSkill(models.Model):
         else:
             return {'rank':'undefined',"rankweight":0}
     
-    def save(self, *args, **kwargs):
-        oldobject = UserSkill.objects.filter(user=self.user,skill=self.skill,evaluation_frequency=self.evaluation_frequency)
-        if oldobject.exists():
-            print(oldobject)
+    # def save(self, *args, **kwargs):
+    #     oldobject = UserSkill.objects.filter(card_employee=self.user,skill=self.skill,evaluation_frequency=self.evaluation_frequency)
+    #     if oldobject.exists():
+    #         print(oldobject)
             
-            oldobject.delete()
-        super(UserSkill, self).save(*args, **kwargs)
+    #         oldobject.delete()
+    #     super(UserSkill, self).save(*args, **kwargs)
         
 

@@ -8,5 +8,7 @@ urlpatterns = [
     path('AddPeriodApiView/', AddPeriodApiView.as_view(), name='AddPeriodApiView'),
     path('AddFrequencyApiView/', AddFrequencyApiView.as_view(), name='AddFrequencyApiView'),
     path('Frequencies/', Frequencies.as_view(), name='Frequencies'),
-    path('employee/<int:id>',EmployeeListForScores.as_view(),name='employee')
+    path('employee/<int:id>',EmployeeListForScores.as_view(),name='employee'),
+    path('EvaluationList/',EvaluationList.as_view(),name='EvaluationList'),
+    
 ]

@@ -7,6 +7,7 @@ admin.site.register(ProjectDepartment)
 admin.site.register(DepartmentPosition)
 
 admin.site.register(Employee)
+admin.site.register(AllScores)
 admin.site.register(UserSkill)
 admin.site.register(Hirponorms)
 admin.site.register(MainSkill)
