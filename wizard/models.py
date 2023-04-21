@@ -252,12 +252,12 @@ class AllScores(models.Model):
     rater = models.ForeignKey(Employee,on_delete=models.CASCADE,related_name='mycomment')
     evaluation_frequency = models.ForeignKey(Evaluation_frequency,on_delete=models.CASCADE,related_name='freq')
     is_visible = models.BooleanField(default=False)
-            
+
 class UserSkill(models.Model):
     card = models.ForeignKey(AllScores,on_delete=models.CASCADE)
     skill = models.ForeignKey(MainSkill, on_delete=models.CASCADE)
     comment = models.TextField(null=True,blank=True)
-    price = models.PositiveIntegerField()
+    price = models.PositiveIntegerField(null=True,blank=True)
     
     
     def __str__(self):

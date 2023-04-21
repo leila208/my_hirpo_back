@@ -22,10 +22,14 @@ class ProjectSerializer(serializers.ModelSerializer):
         model = Project
         fields = '__all__'
         
+class ProjectDepartmentSerializer4(serializers.ModelSerializer):
 
-        
-class DepartmentPositionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProjectDepartment
+        fields = ('id','name')
     
+class DepartmentPositionSerializer(serializers.ModelSerializer):
+    department = ProjectDepartmentSerializer4()
     class Meta:
         model = DepartmentPosition
         fields = ('name','department','id')

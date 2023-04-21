@@ -21,6 +21,12 @@ class Evaluation_frequencySerializer(serializers.ModelSerializer):
     class Meta:
         model = Evaluation_frequency
         fields = '__all__'
+        
+class MainSkillSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = MainSkill
+        fields = '__all__'
 
 class PeriodSerializer(serializers.ModelSerializer):
     frequency = Evaluation_frequencySerializer(many=True)
@@ -46,9 +52,17 @@ class ProjectSerializerr(serializers.ModelSerializer):
         model = Project
         fields = '__all__'
     
+class AllScoresSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = AllScores
+        fields = '__all__'
     
-    
-    
+class UserSkillSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserSkill
+        fields = '__all__'
             
         
 class SimpleProjectDepartmentSerializer(serializers.ModelSerializer):
