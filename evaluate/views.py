@@ -74,9 +74,9 @@ class AddFrequencyApiView(APIView):
 class EvaluationList(generics.ListAPIView):
     serializer_class = AllScoressSerializer
     
-    def get_queryset(self,request):
+    def get_queryset(self):
         
-        queryset = AllScores.objects.filter(rater = request.user.id)
+        queryset = AllScores.objects.filter(rater = self.request.user.id)
   
         for x in queryset:
             if x.evaluation_frequency.start_date < today and x.evaluation_frequency.end_date > today:
