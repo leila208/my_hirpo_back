@@ -21,12 +21,12 @@ class Evaluation_frequencySerializer(serializers.ModelSerializer):
     class Meta:
         model = Evaluation_frequency
         fields = '__all__'
-        
+#hardasa islenibse ayri serializer elvae edersen. deyisirem. note to me in future
 class MainSkillSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = MainSkill
-        fields = '__all__'
+        fields = ('name','weight')
 
 class PeriodSerializer(serializers.ModelSerializer):
     frequency = Evaluation_frequencySerializer(many=True)
@@ -47,7 +47,7 @@ class employeeeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Employee
-        fields = '__all__'
+        fields = ('first_name','last_name','positionName')
         
 class ProjectSerializerr(serializers.ModelSerializer):
     
@@ -56,7 +56,7 @@ class ProjectSerializerr(serializers.ModelSerializer):
         model = Project
         fields = '__all__'
     
-class AllScoresSerializer(serializers.ModelSerializer):
+class AllScoresPostSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = AllScores
@@ -67,13 +67,29 @@ class AllScoressSerializer(serializers.ModelSerializer):
     class Meta:
         model = AllScores
         fields = '__all__'
+        
+
     
 class UserSkillSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserSkill
         fields = '__all__'
-            
+        
+class UserSkillForEvaEvaCompSerializer(serializers.ModelSerializer):
+    skill = MainSkillSerializer()
+    
+    class Meta:
+        model = UserSkill
+        fields = '__all__'
+    
+class AllScoresForEvaluateSerializer(serializers.ModelSerializer):
+    
+    employee = employeeeSerializer()
+    comptency = UserSkillForEvaEvaCompSerializer(many=True)
+    class Meta:
+        model = AllScores
+        fields = '__all__'        
         
 class SimpleProjectDepartmentSerializer(serializers.ModelSerializer):
     compatencies = serializers.SerializerMethodField()

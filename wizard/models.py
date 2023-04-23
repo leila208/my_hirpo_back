@@ -257,7 +257,7 @@ class AllScores(models.Model):
         return f'{self.employee.first_name}-qiymetlendiren:{self.rater}'
 
 class UserSkill(models.Model):
-    card = models.ForeignKey(AllScores,on_delete=models.CASCADE)
+    card = models.ForeignKey(AllScores,on_delete=models.CASCADE,related_name='comptency')
     skill = models.ForeignKey(MainSkill, on_delete=models.CASCADE)
     comment = models.TextField(null=True,blank=True)
     price = models.PositiveIntegerField(null=True,blank=True)

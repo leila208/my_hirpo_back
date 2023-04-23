@@ -31,6 +31,7 @@ class CreateProjectView(APIView):
         
         if project_serializer.is_valid(raise_exception=True):
             project = project_serializer.save()
+            print("project")
             
             for item in list(object_data.keys()):
                 name=str(item)
@@ -40,12 +41,12 @@ class CreateProjectView(APIView):
             
                 if department_serializer.is_valid(raise_exception=True):
                     department = department_serializer.save()
-
+                print("department")
                 if department.employee_number:
                     employee_number = department.employee_number
                 else:
                     employee_number =1
-                    
+                
                 if employee_number == 1:
                     data=[{"name":"Senior"}]
                 elif employee_number>1 and employee_number<4:
@@ -59,14 +60,16 @@ class CreateProjectView(APIView):
                     
                 
                 for x in data:
-           
+                    print(department.id)
                     x['department']=department.id
-                    position = DepartmentPositionSerializer(data=x) 
+                    print(x)
+                    position = DepartmentPositionForWizardSerializer(data=x) 
                     
-                    position.is_valid(raise_exception=True)
-                        
-                    position.save()
-                        
+                    if position.is_valid():
+                        position.save()
+                    else:
+                        print(position.errors)
+                    print("position")   
         return Response({"message":"success","project":project_serializer.data.get('id')},status=201)
    
 

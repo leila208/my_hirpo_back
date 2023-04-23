@@ -33,7 +33,13 @@ class DepartmentPositionSerializer(serializers.ModelSerializer):
     class Meta:
         model = DepartmentPosition
         fields = ('name','department','id')
+
+class DepartmentPositionForWizardSerializer(serializers.ModelSerializer):
         
+    class Meta:
+        model = DepartmentPosition
+        fields = ('name','department')
+
 class ProjectDepartmentForCompSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProjectDepartment

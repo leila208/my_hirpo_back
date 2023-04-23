@@ -58,7 +58,7 @@ class AddFrequencyApiView(APIView):
                 print(emp.position.department.id)
                 for rater in Employee.objects.filter(position__department=emp.position.department.id):
                     print(rater.position.department.id)
-                    Scoreserializer = AllScoresSerializer(data={'employee':emp.id,'rater':rater.id,'evaluation_frequency':eva.id})
+                    Scoreserializer = AllScoresPostSerializer(data={'employee':emp.id,'rater':rater.id,'evaluation_frequency':eva.id})
                     Scoreserializer.is_valid(raise_exception=True)
                     score = Scoreserializer.save()
                
@@ -100,3 +100,8 @@ class EmployeeListForScores(generics.ListAPIView):
             project=Project.objects.get(companyLeader=data,id=id)
             return queryset.filter(project=project.id)
         
+
+class EvaluateComptencyList(generics.RetrieveAPIView):
+    serializer_class = AllScoresForEvaluateSerializer
+    queryset = AllScores.objects.all()
+    lookup_field = 'id'
