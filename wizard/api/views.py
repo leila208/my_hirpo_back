@@ -16,7 +16,7 @@ from rest_framework.response import Response
 #employee goal list
 class UserListView(generics.ListAPIView):
     queryset = Employee.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = EmployeesallSerializer
     
 
 class CreateProjectView(APIView):     

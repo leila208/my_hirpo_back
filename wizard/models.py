@@ -127,7 +127,7 @@ class MainSkill(models.Model):
     name = models.CharField(max_length=255,verbose_name='Bacariq adi')
     skilltype = models.CharField(choices=skilltype,max_length=5,null=True,blank=True,verbose_name='skilltype')
     description = models.TextField(null=True,blank=True)
-    position = models.ForeignKey(DepartmentPosition, on_delete=models.CASCADE)
+    position = models.ForeignKey(DepartmentPosition, on_delete=models.CASCADE,related_name='positionskills')
     norm = models.PositiveIntegerField(null=True,blank=True)
     weight = models.FloatField(null=True,blank=True)
     
@@ -179,23 +179,39 @@ class Employee(models.Model):
     
     def get_total_score(self):
         cowerker,selfscore,sub,manager = [],[],[],[]
-        for x in self.skills.all():
-            if x.employee.report_to == x.rater.report_to:
-                cowerker.append(x.skill.weight*(x.price/x.norm))
-            elif x.employee.report_to == x.rater:
-                manager.append(x.skill.weight*(x.price/x.norm))
-            elif x.employee == x.rater.report_to:
-                sub.append(x.skill.weight*(x.price/x.norm))
-            elif x.employee == x.rater:
-                selfscore.append(x.skill.weight*(x.price/x.norm))
-            else:
-                pass
+        for y in self.myscore.all():
+            for x in y.comptency.all():
+                try:
+                    if y.employee.report_to == y.rater.report_to:
+                        cowerker.append(x.skill.weight*(x.price/x.skill.norm))
+                    elif y.employee.report_to == y.rater:
+                        manager.append(x.skill.weight*(x.price/x.skill.norm))
+                    elif y.employee == y.rater.report_to:
+                        sub.append(x.skill.weight*(x.price/x.skill.norm))
+                    elif y.employee == y.rater:
+                        selfscore.append(x.skill.weight*(x.price/x.skill.norm))
+                    else:
+                        pass
+                except:
+                    pass
             
         result = {}
-        result['cowerker'] = sum(cowerker)/len(cowerker)
-        result['selfscore'] = sum(selfscore)/len(selfscore)
-        result['sub'] = sum(sub)/len(sub)
-        result['manager'] = sum(manager)/len(manager)
+        if len(cowerker)>0:
+            result['cowerker'] = int(sum(cowerker)/len(cowerker))
+        else:
+            result['cowerker'] = 100
+        if len(selfscore)>0:
+            result['selfscore'] = int(sum(selfscore)/len(selfscore))
+        else:
+            result['selfscore'] = 100
+        if len(sub)>0:
+            result['sub'] = int(sum(sub)/len(sub))
+        else:
+            result['sub'] = 100
+        if len(manager)>0:
+            result['manager'] = int(sum(manager)/len(manager))
+        else:
+            result['manager'] = 100
         result['total'] = result['cowerker']*0.3+result['selfscore']*0.1+result['sub']*0.2+result['manager']*0.4
         return result
     

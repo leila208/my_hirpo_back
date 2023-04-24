@@ -118,3 +118,9 @@ class PerformCardUpdateView(generics.UpdateAPIView):
             serializer.is_valid(raise_exception=True)
             serializer.save()
         return Response({'message': 'success'})
+   
+class EmployeePerformance(generics.RetrieveAPIView):
+    serializer_class = EmployeeSerializerForUserPerformance
+    queryset = Employee.objects.all()
+    lookup_field = 'id' 
+

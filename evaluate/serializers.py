@@ -94,13 +94,16 @@ class AllScoresForEvaluateSerializer(serializers.ModelSerializer):
         
     def get_total(self,obj):
         total_weight = 0
-        total_score = 0
+        score,total_score,score_number = 0,0,0
         for x in obj.comptency.all():
             total_weight += x.skill.weight
             if x.price:
-                total_score += x.price*x.skill.weight
-        
-        return {'total_weight':total_weight}
+                print(x.price,x.skill.norm)
+                score += x.price/x.skill.norm
+                score_number += 1
+
+        total_score = score/score_number
+        return {'total_weight':total_weight,'total_score':total_score}
             
            
         
@@ -141,3 +144,26 @@ class AllScoreUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserSkill
         fields = ('id','price','comment')
+        
+
+class DepartmentPositionSerializer(serializers.ModelSerializer):
+    positionskills = MainSkillSerializer(many=True)
+    class Meta:
+        model = DepartmentPosition
+        fields = '__all__'
+        
+    
+        
+      
+class EmployeeSerializerForUserPerformance(serializers.ModelSerializer):
+    total_score = serializers.SerializerMethodField()
+    position = DepartmentPositionSerializer()
+    class Meta:
+        model = Employee
+        fields = '__all__'
+        
+    def get_total_score(self,obj):
+        total = obj.get_total_score()
+        print(total,'111111111')
+        return total
+        
