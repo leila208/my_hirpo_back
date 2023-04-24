@@ -78,10 +78,16 @@ class UserSkillSerializer(serializers.ModelSerializer):
         
 class UserSkillForEvaEvaCompSerializer(serializers.ModelSerializer):
     skill = MainSkillSerializer()
-    
+    score = serializers.SerializerMethodField()
     class Meta:
         model = UserSkill
         fields = '__all__'
+        
+    def get_score(self,obj):
+        score = 'undefined'
+        if obj.skill.norm and obj.price and obj.price>0:
+            score = obj.skill.norm/obj.price
+        return score    
     
 class AllScoresForEvaluateSerializer(serializers.ModelSerializer):
     total = serializers.SerializerMethodField()
@@ -141,10 +147,14 @@ class employeeSerializer(serializers.ModelSerializer):
         
 
 class AllScoreUpdateSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = UserSkill
         fields = ('id','price','comment')
-        
+    
+    # def get_score(self,obj):
+    #     score = obj.skill.norm/obj.price
+    #     return score    
 
 class DepartmentPositionSerializer(serializers.ModelSerializer):
     positionskills = MainSkillSerializer(many=True)
@@ -164,6 +174,5 @@ class EmployeeSerializerForUserPerformance(serializers.ModelSerializer):
         
     def get_total_score(self,obj):
         total = obj.get_total_score()
-        print(total,'111111111')
         return total
         
