@@ -76,8 +76,7 @@ class EvaluationList(generics.ListAPIView):
     
     def get_queryset(self):
         
-        queryset = AllScores.objects.filter(rater = self.request.user.id)
-   
+        queryset = AllScores.objects.filter(rater = self.request.user.employee.id)
         for x in queryset:
             if x.evaluation_frequency.start_date <= today <= x.evaluation_frequency.end_date:
                 pass
@@ -105,3 +104,17 @@ class EvaluateComptencyList(generics.RetrieveAPIView):
     serializer_class = AllScoresForEvaluateSerializer
     queryset = AllScores.objects.all()
     lookup_field = 'id'
+    
+class PerformCardUpdateView(generics.UpdateAPIView):
+    def put(self, request):
+        data = request.data
+        print(data)
+        myserializer = AllScoreUpdateSerializer
+        for key,value in data.items():
+            field_name, object_id = key.split('-')
+            
+            score = UserSkill.objects.get(id=object_id)
+            serializer = myserializer(score,data={field_name:value})
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+        return Response({'message': 'success'})

@@ -213,34 +213,34 @@ class OneTimeView(APIView):
                         number +=1
         poswe = {}                
         for x in MainSkill.objects.all():
-            if x.position.name+'-'+x.skilltype in poswe:
-                poswe[x.position.name+'-'+x.skilltype] = poswe[x.position.name+'-'+x.skilltype]+1
+            if x.position.name+'-'+x.position.department.name+'-'+x.skilltype in poswe:
+                poswe[x.position.name+'-'+x.position.department.name+'-'+x.skilltype] = poswe[x.position.name+'-'+x.position.department.name+'-'+x.skilltype]+1
             else:
-                poswe[x.position.name+'-'+x.skilltype] = 1
+                poswe[x.position.name+'-'+x.position.department.name+'-'+x.skilltype] = 1
                 
         for x in MainSkill.objects.all():
             
             if x.skilltype == 'Soft' and x.position.name == 'Junior':
-                x.weight = 25/poswe[x.position.name+'-'+x.skilltype]
-                print(poswe[x.position.name+'-'+x.skilltype])
+                x.weight = 25/poswe[x.position.name+'-'+x.position.department.name+'-'+x.skilltype]
+
             elif x.skilltype == 'Hard' and x.position.name == 'Junior':
-                x.weight = 75/poswe[x.position.name+'-'+x.skilltype]
+                x.weight = 75/poswe[x.position.name+'-'+x.position.department.name+'-'+x.skilltype]
             if x.skilltype == 'Soft' and x.position.name == 'Specialist':
-                x.weight = 40/poswe[x.position.name+'-'+x.skilltype]
+                x.weight = 40/poswe[x.position.name+'-'+x.position.department.name+'-'+x.skilltype]
             elif x.skilltype == 'Hard' and x.position.name == 'Specialist':
-                x.weight = 60/poswe[x.position.name+'-'+x.skilltype]
+                x.weight = 60/poswe[x.position.name+'-'+x.position.department.name+'-'+x.skilltype]
             if x.skilltype == 'Soft' and x.position.name == 'Senior Specialist':
-                x.weight = 50/poswe[x.position.name+'-'+x.skilltype]
+                x.weight = 50/poswe[x.position.name+'-'+x.position.department.name+'-'+x.skilltype]
             elif x.skilltype == 'Hard' and x.position.name == 'Senior Specialist':
-                x.weight = 50/poswe[x.position.name+'-'+x.skilltype]
+                x.weight = 50/poswe[x.position.name+'-'+x.position.department.name+'-'+x.skilltype]
             if x.skilltype == 'Soft' and x.position.name == 'Manager':
-                x.weight = 40/poswe[x.position.name+'-'+x.skilltype]
+                x.weight = 40/poswe[x.position.name+'-'+x.position.department.name+'-'+x.skilltype]
             elif x.skilltype == 'Hard' and x.position.name == 'Manager':
-                x.weight = 60/poswe[x.position.name+'-'+x.skilltype]
+                x.weight = 60/poswe[x.position.name+'-'+x.position.department.name+'-'+x.skilltype]
             if x.skilltype == 'Soft' and x.position.name == 'Top Manager':
-                x.weight = 25/poswe[x.position.name+'-'+x.skilltype]
+                x.weight = 25/poswe[x.position.name+'-'+x.position.department.name+'-'+x.skilltype]
             elif x.skilltype == 'Hard' and x.position.name == 'Top Manager':
-                x.weight = 75/poswe[x.position.name+'-'+x.skilltype]               
+                x.weight = 75/poswe[x.position.name+'-'+x.position.department.name+'-'+x.skilltype]               
             x.save()
                 
         return Response({"success":number})

@@ -264,13 +264,13 @@ class UserSkill(models.Model):
     
     
     def __str__(self):
-        return f'{self.card.employee.first_name}-{self.card.employee.last_name}-{self.skill.name}-{self.price}'
+        return f'who is rated - {self.card.employee.first_name} rater-{self.card.rater.first_name}-{self.skill.name}-{self.price}'
     
     def position_weight(self):
         if self.employee.report_to == self.rater.report_to:
             return {"rank":"cowerker","rankweight":30}
         elif self.employee.report_to == self.rater:
-            return {"rank":"manager","rankweight":40}
+            return {"rank":self.rater.position.name,"rankweight":40}
         elif self.employee == self.rater.report_to:
             return {'rank':'sub',"rankweight":20}
         elif self.employee == self.rater:

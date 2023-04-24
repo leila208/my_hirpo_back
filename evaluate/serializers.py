@@ -26,7 +26,7 @@ class MainSkillSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = MainSkill
-        fields = ('name','weight')
+        fields = ('name','weight','norm')
 
 class PeriodSerializer(serializers.ModelSerializer):
     frequency = Evaluation_frequencySerializer(many=True)
@@ -84,12 +84,26 @@ class UserSkillForEvaEvaCompSerializer(serializers.ModelSerializer):
         fields = '__all__'
     
 class AllScoresForEvaluateSerializer(serializers.ModelSerializer):
+    total = serializers.SerializerMethodField()
     
     employee = employeeeSerializer()
     comptency = UserSkillForEvaEvaCompSerializer(many=True)
     class Meta:
         model = AllScores
-        fields = '__all__'        
+        fields = '__all__'     
+        
+    def get_total(self,obj):
+        total_weight = 0
+        total_score = 0
+        for x in obj.comptency.all():
+            total_weight += x.skill.weight
+            if x.price:
+                total_score += x.price*x.skill.weight
+        
+        return {'total_weight':total_weight}
+            
+           
+        
         
 class SimpleProjectDepartmentSerializer(serializers.ModelSerializer):
     compatencies = serializers.SerializerMethodField()
@@ -123,6 +137,7 @@ class employeeSerializer(serializers.ModelSerializer):
         
         
 
-        
-        
-        
+class AllScoreUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserSkill
+        fields = ('id','price','comment')
