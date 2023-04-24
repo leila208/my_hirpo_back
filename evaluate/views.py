@@ -123,7 +123,7 @@ class EmployeePerformance(generics.ListAPIView):
     serializer_class = EmployeeSerializerForUserPerformance
     
     def get_queryset(self):
-        instance = Employee.objects.filter(project_companyLeader = self.request.user.id)
+        instance = Employee.objects.filter(project__companyLeader = self.request.user.id)
         return instance
 
 

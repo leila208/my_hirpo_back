@@ -183,7 +183,7 @@ class Employee(models.Model):
             for x in y.comptency.all():
                 try:
                     if y.employee.report_to == y.rater.report_to:
-                        cowerker.append(x.skill.weight*(x.price/x.skill.norm))
+                        cowerker.append((x.price/x.skill.norm*100))
                     elif y.employee.report_to == y.rater:
                         manager.append(x.skill.weight*(x.price/x.skill.norm))
                     elif y.employee == y.rater.report_to:
@@ -213,6 +213,7 @@ class Employee(models.Model):
         else:
             result['manager'] = 100
         result['total'] = result['cowerker']*0.3+result['selfscore']*0.1+result['sub']*0.2+result['manager']*0.4
+        print(cowerker)
         return result
     
     # def get_hard_goal(self):
