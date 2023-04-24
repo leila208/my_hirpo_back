@@ -12,6 +12,6 @@ urlpatterns = [
     path('EvaluationList/',EvaluationList.as_view(),name='EvaluationList'),
     path('PerformCardUpdateView/',PerformCardUpdateView.as_view(),name='PerformCardUpdateView'),
     path('EvaluateComptencyList/<int:id>',EvaluateComptencyList.as_view(),name='EvaluateComptencyList'),
-    path('EmployeePerformance/<int:id>',EmployeePerformance.as_view(),name='EmployeePerformance'),
+    path('EmployeePerformance/',EmployeePerformance.as_view(),name='EmployeePerformance'),#son sehife
     
 ]
