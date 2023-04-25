@@ -19,6 +19,8 @@ urlpatterns = [
     path('logout', LogoutAPIView.as_view(), name='logout'),
     path('DpForChart/', DepartmentForOrganizitialChart.as_view(), name='DepartmentForOrganizitialChart'),
     path('EmployeeSingle/<id>', EmployeeSingleView.as_view(), name='EmployeeSingleView'),
+    path('EmployeePageView/', EmployeePageView.as_view(), name='EmployeePageView'),
+    
     path('EmployeeListView/', EmployeeListView.as_view(), name='EmployeeListView'),
     path('AddUser/', AddUser.as_view(), name='AddUser'),
     path('PositionSelect/', PositionSelect.as_view(), name='PositionSelect'),

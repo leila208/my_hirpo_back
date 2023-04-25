@@ -385,6 +385,16 @@ class EmployeeSingleView(generics.RetrieveAPIView):
     serializer_class = EmployeeForUserListPageSerializer
     lookup_field = 'id'
     
+class EmployeePageView(APIView):
+
+    
+    def get(self,request):
+        queryset = Employee.objects.get(user = self.request.user.id)
+        serializer = EmployeeForUserListPageSerializer
+        employee = serializer(queryset)
+        return Response(employee.data)
+    
+    
 class PositionSelect(generics.ListAPIView):
     serializer_class = DepartmentPositionSerializer
     
