@@ -86,7 +86,7 @@ class UserSkillForEvaEvaCompSerializer(serializers.ModelSerializer):
     def get_score(self,obj):
         score = 'undefined'
         if obj.skill.norm and obj.price and obj.price>0:
-            score = obj.skill.norm/obj.price
+            score = obj.price/obj.skill.norm
         return score    
     
 class AllScoresForEvaluateSerializer(serializers.ModelSerializer):
@@ -107,8 +107,10 @@ class AllScoresForEvaluateSerializer(serializers.ModelSerializer):
                 print(x.price,x.skill.norm)
                 score += x.price/x.skill.norm
                 score_number += 1
-
-        total_score = score/score_number
+        if score_number > 0:
+            total_score = score/score_number
+        else:
+            total_score = 1
         return {'total_weight':total_weight,'total_score':total_score}
             
            

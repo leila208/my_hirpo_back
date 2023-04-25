@@ -183,15 +183,16 @@ class EmployeeForUserListPageSerializer(serializers.ModelSerializer):
         
     def get_total(self,obj):
         score,total_score,score_number = 0,0,0
+        total_weight = 0
         for y in obj.myscore.all():
             for x in y.comptency.all():
-                
                 if x.price:
-                    print(x.price,x.skill.norm)
-                    score += x.price/x.skill.norm*x.skill.weight/100
+                    score += x.price/x.skill.norm*x.skill.weight
+                    print(score)
+                    total_weight += x.skill.weight
                     score_number += 1
         if score_number>0:
-            total_score = score/score_number
+            total_score = score*100/total_weight
         else:
             total_score = '-'
         return {'total_score':total_score}
