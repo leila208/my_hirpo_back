@@ -385,6 +385,8 @@ class EmployeeSingleView(generics.RetrieveAPIView):
     serializer_class = EmployeeForUserListPageSerializer
     lookup_field = 'id'
     
+    
+    
 class EmployeePageView(APIView):
 
     
@@ -431,3 +433,18 @@ class UserChange(generics.UpdateAPIView):
             print(serializer.errors
                   )
         return Response({"Status": "success"}, status=201)
+
+
+class ChangePPView(APIView):
+    def post(self, request):
+        data = request.data
+        employee_id = data.get('id')
+        image = request.FILES.get('file')
+        image_serializer = EmployeeImageSerializer(data={'id': employee_id, 'image': image})
+        if image_serializer.is_valid():
+            image_serializer.save()
+            return Response({'message': 'success'})
+        else:
+            #tour.delete() # delete the created tour object if the image serializer is not valid
+            return Response(image_serializer.errors)
+        

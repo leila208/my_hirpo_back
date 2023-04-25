@@ -162,7 +162,7 @@ class Employee(models.Model):
     positionName = models.CharField(max_length=40,null=True,blank=True)
     phone = models.PositiveIntegerField(null=True,blank=True)
     report_to = models.ForeignKey('self',on_delete=models.CASCADE,null=True,blank=True)
-    
+    image = models.ImageField(null=True,blank=True)
     def __str__(self):
         return f'{self.user}-'
     

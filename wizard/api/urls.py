@@ -25,6 +25,7 @@ urlpatterns = [
     path('AddUser/', AddUser.as_view(), name='AddUser'),
     path('PositionSelect/', PositionSelect.as_view(), name='PositionSelect'),
     path('UserChange/<id>', UserChange.as_view(), name='UserChange'),
+    path('ChangePPView/', ChangePPView.as_view(), name='ChangePPView'),
     
     
 

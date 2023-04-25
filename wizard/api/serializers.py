@@ -173,12 +173,28 @@ class EmployeeForListSerializer(serializers.ModelSerializer):
         
 
 class EmployeeForUserListPageSerializer(serializers.ModelSerializer):
+    total = serializers.SerializerMethodField()
     position = DepartmentPositionSerializer()
     user = UserForEmployeeSerializer()
     report_to = NameOfEmployeeSerializer()
     class Meta:
         model = Employee
         fields = '__all__'
+        
+    def get_total(self,obj):
+        score,total_score,score_number = 0,0,0
+        for y in obj.myscore.all():
+            for x in y.comptency.all():
+                
+                if x.price:
+                    print(x.price,x.skill.norm)
+                    score += x.price/x.skill.norm*x.skill.weight/100
+                    score_number += 1
+        if score_number>0:
+            total_score = score/score_number
+        else:
+            total_score = '-'
+        return {'total_score':total_score}
         
 class EmployeeForCreateSerializer(serializers.ModelSerializer):
     
@@ -198,3 +214,8 @@ class EmployeesallSerializer(serializers.ModelSerializer):
     class Meta:
         model = Employee
         fields = '__all__'
+        
+class EmployeeImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Employee
+        fields = ('image','id')
