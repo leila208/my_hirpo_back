@@ -26,7 +26,8 @@ urlpatterns = [
     path('PositionSelect/', PositionSelect.as_view(), name='PositionSelect'),
     path('UserChange/<id>', UserChange.as_view(), name='UserChange'),
     path('ChangePPView/', ChangePPView.as_view(), name='ChangePPView'),
-    
+    path('HomePageView/', HomePageView.as_view(), name='HomePageView'),
+
     
 
 ]

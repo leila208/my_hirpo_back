@@ -437,10 +437,14 @@ class UserChange(generics.UpdateAPIView):
 
 class ChangePPView(APIView):
     def post(self, request):
+
         data = request.data
-        employee_id = data.get('id')
+        employee_id = data.get('data')
+
         image = request.FILES.get('file')
-        image_serializer = EmployeeImageSerializer(data={'id': employee_id, 'image': image})
+        employee = Employee.objects.get(id = employee_id)
+
+        image_serializer = EmployeeImageSerializer(employee,data = {'image': image})
         if image_serializer.is_valid():
             image_serializer.save()
             return Response({'message': 'success'})
@@ -448,3 +452,10 @@ class ChangePPView(APIView):
             #tour.delete() # delete the created tour object if the image serializer is not valid
             return Response(image_serializer.errors)
         
+class HomePageView(generics.ListAPIView):
+    serializer_class = HomePageSerializer
+    
+    def get_queryset(self):
+        instance = Project.objects.filter(companyLeader = self.request.user.id)
+      
+        return instance

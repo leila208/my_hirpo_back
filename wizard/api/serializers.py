@@ -86,7 +86,7 @@ class SimpleProjectDepartmentSerializer(serializers.ModelSerializer):
             
             for norm in MainSkill.objects.filter(position=y,position__department__id=obj.id):
                 competencies.append({'id':norm.id,'weight':norm.weight,'norm':norm.norm,'position':{'name':y.name,'id':y.id,'department':obj.id},'department':{'name':obj.name,'id':obj.id,'project':obj.project.id},'skill':{'name':norm.name,'id':norm.id,'department':norm.position.department.id}})
-        print(competencies)
+
         return competencies
     
     def get_get_allSkills(self,obj):
@@ -188,7 +188,7 @@ class EmployeeForUserListPageSerializer(serializers.ModelSerializer):
             for x in y.comptency.all():
                 if x.price:
                     score += x.price/x.skill.norm*x.skill.weight
-                    print(score)
+       
                     total_weight += x.skill.weight
                     score_number += 1
         if score_number>0:
@@ -220,3 +220,21 @@ class EmployeeImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Employee
         fields = ('image','id')
+      
+class EmployeeSerializerForDashBoard(serializers.ModelSerializer):
+    total_score = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Employee
+        fields = ('first_name','last_name','total_score')
+        
+    def get_total_score(self,obj):
+        total = obj.get_total_score()
+        return total      
+  
+class HomePageSerializer(serializers.ModelSerializer):
+    employee = EmployeeSerializerForDashBoard(many=True)
+    class Meta:
+        model = Project
+        fields = '__all__'
+        
