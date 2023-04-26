@@ -177,6 +177,7 @@ class EmployeeForUserListPageSerializer(serializers.ModelSerializer):
     position = DepartmentPositionSerializer()
     user = UserForEmployeeSerializer()
     report_to = NameOfEmployeeSerializer()
+    image = serializers.ImageField()
     class Meta:
         model = Employee
         fields = '__all__'
