@@ -73,7 +73,7 @@ class AddFrequencyApiView(APIView):
     
 class EvaluationList(generics.ListAPIView):
     serializer_class = AllScoressSerializer
-    
+
     def get_queryset(self):
         
         queryset = AllScores.objects.filter(rater = self.request.user.employee.id)

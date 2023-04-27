@@ -178,3 +178,4 @@ class EmployeeSerializerForUserPerformance(serializers.ModelSerializer):
         total = obj.get_total_score()
         return total
         
+    

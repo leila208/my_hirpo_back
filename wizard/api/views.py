@@ -268,11 +268,11 @@ class DepartmentUpdateView(APIView):
             serializer.save()
 
         return Response({"message":"success"})
-
+from account.api.permissions import IsCompanyLead
 #wizardda comptency list view yaratmadan evvel       
 class ExcellUploadView(generics.ListAPIView):
     serializer_class = SimpleProjectDepartmentSerializer
-
+    permission_classes = [IsCompanyLead]
     def get_queryset(self):
         queryset = ProjectDepartment.objects.all()
         data=self.request.user.id
@@ -282,7 +282,7 @@ class ExcellUploadView(generics.ListAPIView):
             return queryset.filter(project=project)
         
 class WizardComptencySaveView(APIView):
-    
+    permission_classes = [IsCompanyLead]
     def post(self,request):
         data = request.data
         
@@ -305,7 +305,7 @@ class WizardComptencySaveView(APIView):
         return Response({'message':'delete success'})
             
 class WeightUpdateView(APIView):     
-     
+    permission_classes = [IsCompanyLead]
     def put(self, request): 
         serializer = WeightUpdateSerializer   
         data=request.data
@@ -339,7 +339,7 @@ class LogoutAPIView(APIView):
 
        
 class AddUser(APIView):
-    
+    permission_classes = [IsCompanyLead]
     def post(self,request):
         emp = request.data
         project = Project.objects.get(companyLeader=request.user.id)
@@ -372,7 +372,7 @@ class AddUser(APIView):
             return Response({"message":"success"})
             
 class EmployeeListView(generics.ListAPIView):
-    
+    permission_classes = [IsCompanyLead]
     serializer_class = EmployeeForListSerializer
     
     def get_queryset(self):
@@ -381,6 +381,7 @@ class EmployeeListView(generics.ListAPIView):
         return queryset.filter(project__companyLeader=data)
     
 class EmployeeSingleView(generics.RetrieveAPIView):
+    permission_classes = [IsCompanyLead]
     queryset = Employee.objects.all()
     serializer_class = EmployeeForUserListPageSerializer
     lookup_field = 'id'
@@ -388,7 +389,7 @@ class EmployeeSingleView(generics.RetrieveAPIView):
     
     
 class EmployeePageView(APIView):
-
+    permission_classes = [IsCompanyLead]
     
     def get(self,request):
         queryset = Employee.objects.get(user = self.request.user.id)
@@ -398,6 +399,7 @@ class EmployeePageView(APIView):
     
     
 class PositionSelect(generics.ListAPIView):
+    permission_classes = [IsCompanyLead]
     serializer_class = DepartmentPositionSerializer
     
     def get_queryset(self):
@@ -453,6 +455,7 @@ class ChangePPView(APIView):
             return Response(image_serializer.errors)
         
 class HomePageView(generics.ListAPIView):
+    permission_classes = [IsCompanyLead]
     serializer_class = HomePageSerializer
     
     def get_queryset(self):
