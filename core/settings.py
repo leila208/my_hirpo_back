@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_cleanup.apps.CleanupConfig',
     'wizard',
     'evaluate',
         #myapps
@@ -194,3 +195,4 @@ EMAIL_HOST_PASSWORD = 'bmozpobrdlphkimf'
 EMAIL_PORT = 465
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = True
+MEDIA_CLEANUP_SECONDS = 60 * 60 * 24 * 7
