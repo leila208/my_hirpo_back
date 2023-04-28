@@ -111,6 +111,7 @@ class AllScoresForEvaluateSerializer(serializers.ModelSerializer):
             total_score = score/score_number
         else:
             total_score = 1
+        
         return {'total_weight':total_weight,'total_score':total_score}
             
            

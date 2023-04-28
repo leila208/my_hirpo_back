@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     "rest_framework",
     'django_filters',
     "corsheaders",
-    "pandas",
+
     'rest_framework_simplejwt',
     
 ]
@@ -195,4 +195,3 @@ EMAIL_HOST_PASSWORD = 'bmozpobrdlphkimf'
 EMAIL_PORT = 465
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = True
-MEDIA_CLEANUP_SECONDS = 60 * 60 * 24 * 7

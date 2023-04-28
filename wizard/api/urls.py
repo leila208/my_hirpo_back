@@ -1,7 +1,7 @@
 from django.urls import path
 from wizard.api.views import *
 
-app_name = "wizard-api"
+app_name = "wizard-api2"
 
 urlpatterns = [
     path("employees/", UserListView.as_view(), name="employees"),

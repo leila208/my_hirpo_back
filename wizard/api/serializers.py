@@ -2,7 +2,7 @@ from rest_framework import serializers
 from account.models import *
 from wizard.models import *
 from django.http import JsonResponse
-import pandas as pd
+
 
 class HirponormsSerializer(serializers.ModelSerializer):
 
@@ -232,10 +232,21 @@ class EmployeeSerializerForDashBoard(serializers.ModelSerializer):
     def get_total_score(self,obj):
         total = obj.get_total_score()
         return total      
-  
+    
+    
 class HomePageSerializer(serializers.ModelSerializer):
     employee = EmployeeSerializerForDashBoard(many=True)
+    bottom = serializers.SerializerMethodField()
     class Meta:
         model = Project
         fields = '__all__'
         
+    def get_bottom(self,obj):
+        employees = obj.employee.all()
+        
+        emp = []
+        for x in employees:
+            emp.append({'first_name':x.first_name,'last_name':x.last_name})
+            print(x.id)
+        emp = emp[0:10]
+        return emp[::-1]
