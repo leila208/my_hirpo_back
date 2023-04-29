@@ -1,24 +1,11 @@
 FROM python:3.10.8-alpine
 
-ENV PATH="/scripts:${PATH}"
-
-COPY ./requirements.txt /requirements.txt
-RUN apk add --update --no-cache --virtual .tmp gcc libc-dev linux-headers
-RUN pip install -r /requirements.txt
-RUN apk del .tmp
-
-RUN mkdir /app
-COPY ./app /app
 WORKDIR /app
-COPY ./scripts /scripts
 
-RUN chmod +x /scripts/*
+COPY requirements.txt requirements.txt
 
-RUN mkdir -p /vol/web/media
-RUN mkdir -p /vol/web/static
-RUN adduser -D user
-RUN chown -R user:user /vol
-RUN chmod -R 755 /vol/web
-USER user
+RUN pip install -r requirements.txt
 
-CMD ["entrypoint.sh"]
+COPY . .
+
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000", "--noreload"]
