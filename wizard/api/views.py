@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from wizard.api.serializers import *
 from rest_framework.response import Response
 import os
-
+import pandas as pd
 import openpyxl
 from wizard.models import *
 from rest_framework.permissions import IsAuthenticated
@@ -389,7 +389,7 @@ class EmployeeSingleView(generics.RetrieveAPIView):
     
     
 class EmployeePageView(APIView):
-    permission_classes = [IsCompanyLead]
+  
     
     def get(self,request):
         queryset = Employee.objects.get(user = self.request.user.id)

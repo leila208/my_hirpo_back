@@ -1,6 +1,6 @@
 from rest_framework import generics
 from rest_framework.response import Response
-from .serializers import EmployeeSerializer,RegistrationSerializer, VerifySerializer, SendResetCodeSerializer,ChangePasswordSerializer,ActivationSerializer
+from .serializers import EmployeeSerializer,RegistrationSerializer, VerifySerializer, SendResetCodeSerializer,ChangePasswordSerializer,ActivationSerializer,EmployeeChangePassword
 from django.contrib.auth import get_user_model, login, authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from account.utils import *
@@ -97,3 +97,17 @@ class ChangePasswordVerifyView(generics.UpdateAPIView):
         code = Activationcode.objects.get(user=user)
         code.delete()
         return Response({'Status':'Success'}, status=201)
+
+class EmployeeChangePasswordView(generics.UpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = EmployeeChangePassword
+    lookup_field = "id"
+
+    def put(self, request, *args, **kwargs):
+        obj = self.get_object()
+        print(request.data)
+        serializer = self.serializer_class(data=request.data,instance=obj)
+        
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        return Response({'message':'Success'}, status=201)

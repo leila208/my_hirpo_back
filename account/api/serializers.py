@@ -161,5 +161,13 @@ class EmployeeSerializer(serializers.ModelSerializer):
         fields = ("user", "is_systemadmin")
         
         
-
-        
+class EmployeeChangePassword(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("id", "password")
+    
+    def update(self,instance,validated_data):
+        password = validated_data.pop('password')
+        instance.set_password(password)
+        instance.save()
+        return instance

@@ -178,6 +178,7 @@ class EmployeeForUserListPageSerializer(serializers.ModelSerializer):
     user = UserForEmployeeSerializer()
     report_to = NameOfEmployeeSerializer()
     image = serializers.ImageField()
+    project = ProjectSerializer()
     class Meta:
         model = Employee
         fields = '__all__'
