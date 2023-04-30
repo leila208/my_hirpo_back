@@ -106,7 +106,11 @@ class DepartmentPositionListView(generics.ListAPIView):
         queryset = ProjectDepartment.objects.all()
         user=self.request.user
         if user.is_authenticated:
-            project=Project.objects.get(companyLeader=user.id)
+            try:
+                project=Project.objects.get(companyLeader=user.id)
+            except:
+                user = Employee.objects.get(user= user)
+                project = user.project
             
             return queryset.filter(project=project)
         
@@ -278,8 +282,14 @@ class ExcellUploadView(generics.ListAPIView):
         data=self.request.user.id
         
         if data:
-            project=Project.objects.get(companyLeader=data)
-            return queryset.filter(project=project)
+            try:
+                project=Project.objects.get(companyLeader=data)
+                
+            except:
+                user = Employee.objects.get(user= data)
+                project = user.project
+                print(project)
+            return queryset.filter(project=project)   
         
 class WizardComptencySaveView(APIView):
     permission_classes = [IsCompanyLead]
@@ -378,6 +388,7 @@ class EmployeeListView(generics.ListAPIView):
     def get_queryset(self):
         queryset = Employee.objects.all()
         data=self.request.user.id
+        
         return queryset.filter(project__companyLeader=data)
     
 class EmployeeSingleView(generics.RetrieveAPIView):
